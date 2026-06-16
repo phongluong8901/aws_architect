@@ -1,0 +1,91 @@
+#--- Simple Storage S3
+object storage: bao amt, ben vung, mo rong, luu tru
+scalable: luu tru va lay lai du lieu qua web, internet
+don gian: de su dung
+
+S3 la doi tuong luu tru du lieu
+file system hoac khoi du lieu data blocks
+upload file: photos, video, code, documents, text files
+khong the chay os hay csdl
+
+unlimited storage: object k gioi han
+S3 max: 5TB
+S3 buckets: universal namespace, S3 URLs, Uploading Files 
+
+key - value Store
+key, version ID, value, metadata
+S3 la noi an toan de luu tru du lieu 
+Availability
+Durability
+
+S3 Standard
+1 high availability av Durability
+thiet ke cho truy cap lien tuc du lieu
+tich hop tai trong cong viec
+
+Tiered Storage
+Lifecycle Management
+
+Versioning
+
+bao mat du lieu
+1. ma hoa du lieu
+2. access control list (ACLs)
+3. bucket policies
+
+object based, khong thich hop cho luu tru (OS, DB), file up to 5TB, unlimited storage
+
+#--- S3 block public access - bao mat du lieu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
