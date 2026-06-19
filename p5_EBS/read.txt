@@ -1,0 +1,264 @@
+#--- Elastic block storage - EBS va Elastic file system - EFS
+
+#--- EBS volume
+co the gan EBS vao EC2 instance
+file system, CSDL, OS, luu du lieu
+
+EBS
+thu hien toot khoi luong cong viec
+high availability trong AZ
+Scalabe: tang dung luong o dia, no down time va performance doi voi EC2  instances
+
+SSD - solid state Disk
+
+IPOS (input output per second) hieu suat doc ghi o cung moi giay
+3IOPS moi GIB, len den 16 000 volume
+gp2 volume nho hon 1 TB co the tang toc do 3000 IOPS
+
+SSD gp3: 
+3000IOPS va 125MIB 
+mysql, casandra, pc
+hieu suat cao, mo rong  len den 16000 OPS va 1000MiB/s
+
+IOPS SSD io1
+64000 IOPS va 50 IOPS moi GIB
+toc do 16 000 IOPS
+nhieu I/O vao ra, latency thap
+
+IOPS SSD io2
+500 IOPS moi GIB, 64000 IOPS
+99 durability, latency thap, do ben SSD cao
+
+HDD - Hard Disk Drive
+
+HDD st1
+40MB/s moi TB
+250MB/second
+throughput 500MB
+bigdata, datawrehouse, k dung lam boot volume
+chi phi thap hon 
+
+COLD HDD sc1
+throughput 12MB/s moi TB
+80MB/s moi TB
+250MB/s moi volume
+it doc, scan moi ngay
+chi thi thap, it su dung
+backup du lieu
+
+IOPS: 
+luong thao tac doc ghi moi giay
+truy xuat nhanhm latency thap, khoi luong vao ra lon
+doc ghi cuc nhanh
+provinsioned IOPS SSD io1 hoac io2
+
+Throughput:
+do so luong odc bits hoc ghi moi giay
+chi cho du lieu lon, I/O lon, truy van phuc thap
+xu ly du lieu lon
+thorughput HDD st1
+
+SSD
+high available, storage cho Ec2 instance
+gp2: 16000 moi volume, 99% durability, ung dung chung
+gp3: 3000 IOPS 124 MIB, cho toc do xu ly cao
+io1: 50IOPS/GIB 64000IPOS
+io2: 50IOPS/GIB 64000IPOS
+
+HDD
+st1: 500MB/s moi volume
+sc1: 250MB/s
+
+
+#--- volumes va snapshots
+
+--- volumes
+ton tai trong EBS, o dia ao virtual hard Disk
+root device volume
+
+--- snapshots
+luu trong s3, sao luu o dia ao virtual disk/volume
+ban copy tai 1 thoi diem, copy tai thoi diem cua 1 volume
+incremental - gia tang, du lieu thay doi tu snapshot cuoi cung
+tinh nhat quan snapshot: ghi lai du lieu da dc ghi - phai stop EC2 lai 
+encrypted snapshot - ma hoa ebs volume
+share snapshots: chiase voi cac account hoac service trong cung region
+
+EBS volume
+location: luon trong cung AZ
+resizing: thay doi kich co EC2 dang chay
+volume type: thay doi loai volume EBS khac nhau ma k can stop EC2
+
+-lab
+Ec2 - instance - EBS volumes - 8GiB - gp3 - 3000 IOPS - 125 throughput - add new volume
+metadata version - userdata - pate scripts
+my EC2 - storage - click id EBS -
+elastic block store - volumes -  details - modify volume
+dettach volume
+
+EBS id - actions - create snapshot - description - 
+elastic block store - snapshots
+copy snapshot
+
+Imgaes AMIs - launch instance from AMI
+Ec2 - name - keypair - firewall -- allow SSH, HTTPS, HTTP - configure storage
+instance id
+
+#--- EBS ma hoa bao mat
+industry-standard AES-256 de ma hoa volume va snapshot
+
+du lieu dc ma hoa trong volume
+
+EBS encryption
+Encryption va decryption trong suot
+latency thap
+copy
+snapshots
+root device volume
+
+4 buoc ma hoa
+tao sanpshots cua root device volume
+tao copy
+tao AMI
+su dung AMI tao encrypted instance
+
+-lab
+
+#--- EC2 Hibernation
+stop hoa terminate EC2 instance
+giu trong o EBS 
+launch va khoi tao EC2
+
+os dc boots up
+bootstrap scripts
+khoi dong 
+
+hibernate ngu dong
+os dc supends to disk - ngu dong
+Hybernation luu noi dung tu RAM vao EBS root volume 
+
+khi start lai sau khi hibernation - EBS root dc phuc hoi lai
+Ram dc tai lai, tien trinh truoc do dc tiep tuc, ebs dc gan lai
+
+
+#--- EFS 
+aws elastic file system
+aws cloud - VPC -subnet - Ec2 - EFS 
+
+network file system
+EFS lam viec voi EC2 trong AZ
+high and Scalabe 
+
+contentmangement - de chia se noi dung trong cac Ec2
+web server
+
+NFSv4 protocol
+linux base AMI, k ho tro window
+KMS de ma hoa
+tu dong mo rong file system
+
+1000s concurrent connections
+10 Gbps throughput
+petabytes scaling
+
+general purpose - muc dich chung: web server, cms
+Max I/O: big daat, media processing,...
+
+storage tiers
+ho tro va quan li vong doi
+standard: thuong xuyen
+standard infrequently accessed: k thyuong xuyen
+
+-lab 
+EFS - create file system - name - VPC - storagve class - standard - create
+my efs - edit - automatic backups - enable automactic - transistion into IA
+performance settings - bursting - enhanced - elastic - provisionded - provisioned throughput (MiB/s)
+
+#--- Fsx
+FSx cho windows, file system dc luu tru HDH windows
+dc xay tren nen tan windows server
+
+FSx for windows
+file server chay windwos, server message block - SMB
+danh cho windows va applciation
+ho tro Ad users, access control lists, group, security, DFS - distributed file system, namespace, replicaiton
+
+EFS
+file server cac EC2 cho linux
+
+FSx cho lustre
+file system cho tinh toan chuyen sau
+hig performance computing
+ML
+communication
+electric
+lustre file system, co throughput gigabyre/s
+
+#--- EBS, Machine image, instance store
+AMi - amazone machine image: cung cap thong tin dc doi hoi de launch Ec2
+chi dinh ro AMI khi khoi tao instance
+
+region
+OS
+architect 32,64
+quyen Ec2 truy cap tai nguyen
+cau hinh root device volume
+
+EBS
+root device cho ec2 intance dc launch tu AMI la EBS dc tao ra tu EBS snapshot
+
+instance store
+cho ec2 dc launch tu teamplte trong s3
+
+instance store volume: luu tru phu du - ephemeral storage
+neu co loi thi mat du lieu
+
+EBS volume: co the bi dung, Ec2 stop - co the rebots lai ma k mat du lieu
+volume se bi xoa khi xoa Ec2
+
+#--- backup aws
+backup cho Ec2, EBS, EFS, FSx 
+
+backup voi organizations
+nhieu account , kiem soat dich vu trong aws accounts trong organizations
+
+quan ly tap trung
+automation
+tang cuong tuan thu
+
+#--- lab cat giam chi phi
+
+AWS account - east-1 region - EC2 (EBS - webserver, EBS - webserver2, EBS - webserver3) - mount EFS file syystem
+
+#--- lab 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

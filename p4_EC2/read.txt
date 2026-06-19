@@ -1,0 +1,430 @@
+#--- Summary
+
+Elastic Compute Cloud  - EC2
+secure
+giong VM trong datacenter
+web scale cloud - dung luong, cau hinh
+EC2 intance
+
+pay as you use
+
+on-demand instances: 
+thap, linh hoat
+thoi han ngan han, lien tuc hoat dong, tang dot bien
+testing
+
+reserved instances:
+ung dung chay on dinh
+dung luong luu tru
+tra tirn truoc
+Standard RIs
+Convertible RIs: cau hinh tuong duong
+schedualed RIs: thoi gian xac dinh
+reserced instances: chay trong region
+
+spot instances: linh hoar, nhay cam, dung luong khan cap
+
+Dedicated hosts:
+tuan thu: he thong may chu ao hoa, nhieu ben thue
+ban quyen: Licensing
+On-demand: nhu cau
+rerserved: dat truoc
+
+Ec2 nhu 1 VM, chay tren AWS thay vi trong data center. tang giam Ram, CPU, Ec2
+On-Demand, spot, Reserve, Dedicated
+
+#--- create EC2
+EC2 - intances - name and tag - add additional tags
+key-value
+application os - linux - image - architecture - instance type - t2.micro
+key pair(login) - name - type - RSA - .pem - create key pair
+network settings - vpc - subnet - auto-assing public ip - enable - create security group - allow ssh traffic from, allow https trafic from the internet, allow http trafic from the internet
+VPC - subnet - auto-assign public IP - inbound security group rules - type, protocaol, port range, source type, source
+Configure storage - GiB - SSD - add new volume - EBS volume
+number of intances - launch intances
+
+Ec2 - instance state
+my instance id - Ipv4 address public , DNS
+Details - keypair, 
+status and alarm - metrics, alarms
+monitoring - larm recommendations
+security - security groups
+networking - ip puclic
+storage - volume monitoring, size, status
+tags - key, name
+
+- truy cap
+intancse - name - right click - connect - ssh client
+launch instance
+ssh
+dnt update -y
+yum install httpd
+y
+systemctl status httpd
+systemctl start httpd
+exit
+
+terminate instances
+
+#--- lenh trong aws CLI
+
+aws management console: dung lenh de tao tai nguyen
+
+aws s3 ls: check list s3
+tao Ec2 intance, IAM User, AWS CLI
+
+-lab
+EC2 - instaces - name - Os images - key pair (login) - netowrk settings - firewall - selec existring security group - common security groups - launch intances
+connect to instance - ec2 instance to connect - launch
+sudo su
+clear
+dnf update
+aws s3 ls
+
+AWS CLI install and update insttuctions -
+
+IAM - Users - user group name - attach permission policies - optional
+AmazonS3FullAccess
+create user - Specify user detail - name - sey permission - user groups - 
+my user - security credentails - access keys - create access key - use case - CLI - download .csv file
+
+ssh - paste security key vao -> co quyen
+aws s3 ls
+aws s3 mb:/newphuong
+aws s3 ls
+vim test.txt
+mv test.txt test1.txt
+ls
+cat test1.txt
+aws s3 cp test1.txt  s3://newphuong/test.txt
+aws s3 ls s3://newphuong/ --recursive
+
+-
+Least privilege - quyen toi thieu
+group - IAM Greoups cho users + policies documents
+
+#--- Roles
+Role trong IAM la quyen cu the, dinh ro identity va phan quyen
+khong co credentails - thogn tin xac thuc dai han
+cung cap security credentails tam thoi
+account, truy cap cheo account, kha nang tuong tac voi tai nguyen AWS
+
+IAM ROle - Ec2 Intance - S3 bucket - access s3
+
+-lab
+IAM - Roles - Use case - Ec2 - add permssion - AmazonS3FullAccess - role details - name 
+IAM - Role - my role - permission policies - summary - permission - json
+
+Ec2 - intances - launch instance - name - key pair (login) - advanced details - IAM instance profile - launch instance
+instances - my intances - connect - ssh client - laptop - ssh
+
+cmd
+login
+aws s3 ls
+aws s3 mb s3://yaidai23
+echo "hiok" > hello.txt
+aws s3 cp hello.txt s3://yaidai23
+
+S3 - buckets - yaidai23 - hello.txt
+
+-lab
+EC2 - instance - modufy role - bo quyen
+-> khong tac dong duoc
+
+
+#--- Security Group, bootstrap scripts EC2
+SSH - port 22 linux
+RDP - port 3389 Windows
+HTTP - port 80 web browsing
+HTTPS - port 443 encrypted web browsing (SSL)
+
+Security group: virtual firewalls cho EC2 instance, mac dinh bi chan ports tu ben ngoai vao
+Ec2 Intances qua: SSH, RDP, HTTP
+
+Bootstrap scripts: script cho phep chay EC2 - bash/shell
+
+-lab
+EC2 - intances - launch an instance - name - os linux - intance type - keypair - network settings - add security group rule - inblound security group rules - ssh tcp 22 anywhere, HTTP tcp 80 anywhere, HTTPS tcp 443 anywhere - configure storage - 8 GiB gp2 - advanced details - user data - script
+
+cript
+#!/bin/bash
+yum update -y
+systemctl start httpd
+system ctl enable httpd
+cd /var/www/html
+echo "<html>" > index.html
+
+intances - 
+
+bootstrap scrip: 1 kich ban script tu dong hoa cai EC2 intances hco lan dau, web servers, database server va update cai dat cau hinh
+
+
+#--- EC2 metadata va user data
+du lieu ve thong tin EC2
+private IP, public IP, host name, security group, ....
+
+- lay thong tin meta data
+curl de truy van
+
+- ket hop userdata va metadata
+bootstrap(user data) script dung lenh curl le luu thong tin EC2
+
+-lab
+Ec2 - launchh instance - name - os - instance type - keypair - networking - firewall - create security group - allow ssh traffic from anywhere, allow http traffic from internet - advanced details - user data (bootstrap script) - launch instances
+connect - ec2 instance connect - 
+
+-
+userdata don gian la bootstrap scripts
+ec2 metadata la du lieu thong tin EC2
+
+
+#--- networking Ec2
+3 loai Vitual networking cards cho ec2 instance
+
+ENI - elastic network interface : network co ban
+EN - Enhanced networking : nang cao SR-IOV (single root I/O virtualization) high perfrmance
+EFA - elastic fabric adapter: ung dung hieu suat cao (HPC) va hoc may
+
+- ENI
+card mang ao - virtual network card
+
+IPv4 private , MAC, IPv4 public, security group, Ipv6
+
+management network, network va firewall trong VPC
+tao cac EC2 instane dual-homed voi workloads va roles tren cac subnets
+giai phap chi phi thap low-budget, high-availability
+
+- EN
+high performance 10Gbps - 100 Gbps
+single root I/o virtualization
+SR-IOV hieu suat cao su dung it CPU
+hieu sxuat bang thong - bandwidth, packet - so luong goi tin/s, giam latencies trong truyen tai
+
+- ENA - elastic network adapter
+network len 100Gps cac loai Ec2
+
+- Inter 82599 virtual function interface - VF
+10 Gbps Ec2 cu hon
+
+-lab
+ec2 intances - launch - ssh
+ip addr show
+ethtool -i enX0
+
+- EFA elastic fabric adapter
+network diveice gan vao ec2 de HPC va ML
+cung cap latency thao hon vaon dinh, truyen tai tcp
+co the dung os-bypass, co the bo qua kernel de giao tiep truc tiep voi EFA, chi dc ho tro voi linux
+
+#--- toi uu voi Ec2 placement groups
+cluster, spread, partition
+
+cluster placement group: vung san sang duy nhat, do tre thap low network latency, high network throughput - thong luong mang cao
+host racks AZ 
+
+spread placement group: nhoms Ec2 instance dat tren hardware platform, tach biet, san sang cao
+
+partition placement group: co racks rieng cua no, mang rieng, co lap tac dong loi phan cung, chia group thanh segments dc goi la partitions
+
+3 loai placement groups
+cluster palcement groups: low network latency, high network throughput
+spread placemnt group: doc lap
+partition placement groups: HDFS, HBASE, Cassadra
+
+-lab
+EC2 - network & security - placement groups -
+create placement group - name - strategy -cluster - create group
+
+cluster placement group k trai rong qua nhieu vung, spread va partition thi co the
+EC2 isntance nhat dinh chay: toi uu compute optimized, GPU, memory optimized, storage optimized
+k the merge latencies
+homogeneous
+di chuyen Ec2 stopped su dung CLI, SDK
+
+
+#--- Licensing voi dedicated hosts - ban quyen
+On-demand: Theo gio, s
+reserved: 1 - 3 nam
+spot: mua ec2 k su dung
+dedicated: may chu vat ly
+
+Dedicated hosts
+compliance - tuan thu: k cho phep su dung Ec2 co nhieu KH chia se tai nguyen cung may chu vat ly
+licensing - ban quyen: co yeu cai ban quyen voi nhieu nguoi dung  khac 
+on-demand - nhu cau: 
+reserved - dat truoc: thue truoc
+
+#--- len lich spot instaces va spot fleets
+spot instance: tan dung Ec2 instance chua su dung, co san
+stateless applications, fault-tolerant application, flexible applications
+bigdata, containerized workload, high-performance
+
+spot prices: san sang chi tra, dinh nghia muc gia spot toi da
+pricing history - lich su gia
+bigdata, containers, CI/CD, teting, video, image, ...
+khong nen: on din, lau dai, quan trong, databases
+
+Sterminate spot instances
+request, gia toi da
+request type: one-time , persistent - lien tuc
+neu yeu cau 1 lam: stop, cham dut terminate
+lien tuc: cap phat lai instances, day gia toi da, huy spot, terminate instance
+
+-spot fleets
+tap hop spot instances va on-demenad instance
+launch spot instance va on demand instacnes, duy tri muc tieu
+spot fleets co gang khoi chay launnch isntances de dat dc muc tieu
+
+spot fleets
+launch pools: ec2 instance, os, AZ
+launch pools, pot fleet
+
+capacityoptimized, diversified, lowestPrice, instancepoolstousecount
+
+
+#--- VMware
+private cloud, hybryd cloud strategy
+
+hybrid cloud: ket noi on-premises cloud  voi public cloud va quan li perivate va public cloud
+cloud migration - migration cloud hien tai toi aws -> VMware
+disater recoverry - VMware phuc hoi sau tham hoa - hybrid cloud se co moi truong phuc hoi
+Leverage - tan dung: 200 aws service de cap nhat ung dung
+
+VMware Cloud
+dedicated hardware su dung aws duy nhat
+2 socket 18 cores per socket, 512 GiBRAM, 15.2 TB SSD storage
+chay nhieu VMware isntance
+cluster hai host la 16 host moi cluster
+
+VMware Cloud private, public cloud
+
+#--- Su dung aws outpots de mang dich vu va ha tang aws vao on-permises
+
+outpots:  mang datacenter aws toi data center cua ban
+1U, 2U cho toi tu rack 42U, nhieu tu racks
+hybrid cloud: tan dung aws services ben trong data centers
+duoc quan tri toan bo co so ha tang (infracstructure) de qua ntri csht outpots
+nhat quan
+
+aws outpots rack:
+hardware - tu rack 42U, len toi 96 tu racks
+service - luu tru, csdl
+ersults - csht va dich vu tai data center
+
+outpots servers:
+hardware - 1U, 2U
+su dung - khong gian nho, vp, chi nhanh
+results - ompute service va networking tai data center
+
+order - log in vao aws managemanet console va order configuration outpots
+isntall - staf aws will go and on-site data center , phan cung, nguon dien, networking, connectivily
+launch - launch cac instances trong outpots on-site
+build - moi truong on-site aws
+
+#--- chon metadata versoin khi launch Ec2 instance
+mac dinh V2 only(token required)
+Token=`curl...`
+co the chon V1 and V2(token optional)
+curl http:/...
+nen chon V1 and V2 (token optional)
+
+-lab
+Ec2 - instacnes - launch an instance - name - os ubuntu - key pair - advanced details - metadata version - v1 and v2 (token optional) - launch instance
+my instance - connect - ec2 instance connect - ssh
+curl://http ....
+
+#---Cai dat web server Ec2
+Aws account - us-east-1 region - ec2 - webserver01, webserver02, webserver03
+
+-lab
+Ec2 - launch instance - name - instance type - t3.micro - key pair - network settings - auti-assign public IP - enable - Firewall - allow ssh traffic from anywhere - allow HTTPS trffic from the internet - allow HTTP traffic from the internet
+edit - security group name
+advanced details - metadata version - v1 and v2 (token optional)
+my instance - connect - ssh
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install apache2 -y
+sudo apt-get install unzip -y
+curl "http://..."
+unzip ...
+ls
+
+-lab
+
+#--- cau hinh IAM role cho EC2
+loai bo nhu cau credentail, giam rui ro bao mat dai han, doan gian hoa phan quyen, cau hinh truy cap tai nguyen Ec2 voi IAM
+
+VPC - subnet A - Ec2 instance (S3bucket) - role 
+
+-lab
+Ec2 - launch an instance - name - os linux - keypair - netowrk setssing - firewall - launch
+S3 - buckets - copy ARN
+IAM - policies - create policiy - Json - paste - change ARN tu S3 - tag - next review - name - create policiy
+IAM - roles - usecase - EC2 - add permission - S3ReadAccess - name,reviw, and craete - name - create role
+policies - permission - edit policy - JSON -
+
+EC2 - connect - ssh client
+laptop ssh - login
+
+#--- python
+https://raw.githubusercontent.com/phuongluuho/phuonglh009/main/reads3files_size.py?utm_term=227066054&utm_content=educational&utm_source=email-sendgrid&utm_medium=5364342&utm_campaign=2023-09-21
+
+#--- backup on-premise linux server to aws S3
+S3 - create bucket - name - versioning - enable - 
+IAM - Users - create user - name - set permission -  create user
+my user - permission - create inline policy - policy editor - S3 - Json - paste resource bucket - policy details - name - create policy
+IAM - User - acceess key - CLI - create access key - secret access key
+ssh server linux -
+sudo -i
+apt update && apt upgrade -y
+apt install -y curl unzip
+
+
+-lab
+on-premise server - aws S3 standard - S3 standard-IA - S3 Clacier isntant retrieval
+
+S3 - bucket - my bucket - Lifecycle configuration - create lifecycle rule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,204 @@
+
+🎯 GIỚI THIỆU MỤC TIÊU
+
+Trong hand-on lab này, mục tiêu của chúng ta rất rõ ràng:
+
+Tạo một bucket S3 để lưu backup
+
+Tạo một IAM user có quyền rất hạn chế
+
+Cài đặt AWS CLI trên server
+
+Thực hiện backup dữ liệu lên S3
+
+Và cuối cùng, tự động hóa backup bằng cron
+
+Tất cả đều là các bước chuẩn production,
+không có lý thuyết dài dòng,
+chỉ tập trung vào thực hành.
+
+🪣 BƯỚC 1 – TẠO S3 BUCKET
+
+Trong AWS Console>Vào dịch vụ S3> click Create bucket.
+
+Trong Bucket name, bạn đặt tên phải là duy nhất cho buckup bucket ví dụ là:
+
+YourName-linux-backup-prod
+
+Tại mục Bucket Versioning chúng ta nên chọn Enable để bật Bucket Versioning.
+
+Việc này cho phép S3 lưu nhiều phiên bản của cùng một file, cực kỳ hữu ích nếu file bị ghi đè hoặc bị lỗi.
+
+Sau đó, click Create bucket.
+
+👤 BƯỚC 2 – TẠO IAM USER RIÊNG CHO BACKUP
+
+Chúng ta sẽ tạo một IAM User chỉ dùng cho việc backup.
+
+Vào dịch vụ IAM > Click Users > Create user.
+
+Tạo một inline policy để đảm bảo cho việc bảo mật.
+
+Sau khi user được tạo:
+Click vào user > Click Add permissions > Click Create inline policy>Trong màn hình Specify permissions Chọn S3 và Click JSON .
+Và paste đoạn JSON sau:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your_backup_bucket",
+        "arn:aws:s3:::your_backup_bucket/*"
+      ]
+    }
+  ]
+}
+
+
+Sau đó, hãy thay your_backup_bucket bằng đúng tên bucket của bạn,
+
+ví dụ:
+
+phuong-linux-backup-prod
+
+“Điều này đảm bảo rằng: user này chỉ có quyền với đúng một bucket backup,
+và không thể truy cập bất kỳ các tài nguyên AWS khác.”
+
+🔑 BƯỚC 3 – TẠO ACCESS KEY
+
+Tạo Access Key cho user này.
+
+Click tab Security credentials > click Create access key.
+
+Chọn Command Line Interface (CLI)> click Create access key.
+
+Trong bước này, các bạn phải lưu lại:
+
+Access Key ID
+
+Secret Access Key
+
+Vì Secret Access Key chỉ hiển thị đúng một lần.
+
+🖥️ BƯỚC 4 – CÀI AWS CLI TRÊN SERVER
+
+Login vào Linux Ubuntu server của bạn.
+
+Đầu tiên, update hệ thống và cài các gói cần thiết:
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl unzip
+
+Download và cài AWS CLI:
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+Kiểm tra version của aws cli:
+aws --version
+
+🔐 BƯỚC 5 – CẤU HÌNH CREDENTIALS
+
+Cấu hình credentials cho user backup, chạy lệnh sau:
+
+aws configure
+
+
+Cần Nhập lần lượt:
+
+Access Key ID
+
+Secret Access Key
+
+Region: Your_S3_Region
+
+Output format: json
+
+Thử chạy lệnh sau để liệt kê các s3 buckets:
+
+aws s3 ls
+
+
+Bạn sẽ thấy báo AccessDenied. Và đây là điều hoàn toàn đúng. Vì user này không có quyền xem toàn bộ S3.
+
+Nhưng nếu ta truy cập đúng bucket backup:
+
+aws s3 ls s3://your-linux-backup-prod
+
+
+Và lệnh sẽ chạy thành công.
+Điều này chứng tỏ policy của chúng ta rất an toàn cho việc bảo mật hệ thống .
+
+💾 BƯỚC 6 – BACKUP DỮ LIỆU LÊN S3
+
+Giả sử bạn muốn backup một thư mục trong server của bạn:
+
+ls /data_backup
+
+Tạo biến thời gian để có thông tin về thời gian rõ ràng cho nội dung backup :
+
+BACKUP_DATE=$(date +%F_%H-%M)
+
+
+Sau đó sync dữ liệu từ server lên S3:
+
+aws s3 sync /data_backup s3://your-linux-backup-prod/$BACKUP_DATE.data_backup
+
+
+Kiểm tra lại:
+
+aws s3 ls s3://your-linux-backup-prod/$BACKUP_DATE.data_backup
+
+
+Bạn có thể thấy dữ liệu đã được backup thành công.
+
+♻️ BƯỚC 7 – TEST RESTORE TỪ S3
+
+Test thử restore lại nội dung backup:
+
+aws s3 sync s3://phuong-linux-backup-prod/$BACKUP_DATE.data_backup $BACKUP_DATE.data_backup
+ls $BACKUP_DATE.data_backup
+
+
+Và bạn có thể thấy dữ liệu được restore lại đầy đủ.
+
+⏰ BƯỚC 8 – TỰ ĐỘNG HÓA BẰNG CRON
+
+Cuối cùng sẽ cấu hình tự động hóa backup.
+
+Để thực hiện việc này hãy mở crontab:
+
+crontab -e
+
+
+Ví dụ, cấu hình backup data chạy 2 giờ sáng mỗi ngày:
+
+0 2 * * * /usr/bin/aws s3 sync /data_backup s3://phuong-linux-backup-prod/$(date +\%F)_data_backup >> /var/log/s3-backup.log 2>&1
+
+
+Từ thời điểm này trở đi, hệ thống backup của bạn sẽ chạy hoàn toàn tự động mỗi ngày mà
+không cần bất kỳ thao tác thủ công nào nữa.
+
+🧠 TỔNG KẾT
+
+Như vậy, trong video này, bạn đã học được:
+
+Vì sao backup lên Cloud là cực kỳ quan trọng, và cách tạo S3 bucket và bật versioning, cũng như Cách tạo IAM user có quyền tối thiểu, sau đó chúng ta có thể biết được Cách backup và restore dữ liệu. Và cách tự động hóa backup bằng cron.
+
+Đây là một quy trình chuẩn production, có thể áp dụng trực tiếp trong hệ thống thật.
+
+Trong video này, chúng ta đã tập trung vào việc xây dựng một hệ thống backup an toàn và đáng tin cậy.
+
+Trong phần 2 , Chúng ta sẽ làm hand-on lab để tối ưu hóa chi phí bằng cách sử dụng S3 Lifecycle và Glacier —
+giúp giảm chi phí lưu dữ liệu backup lên S3.
+
+
+

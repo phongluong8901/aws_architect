@@ -37,29 +37,187 @@ object based, khong thich hop cho luu tru (OS, DB), file up to 5TB, unlimited st
 
 #--- S3 block public access - bao mat du lieu
 
+ACLs - access control list
+hoat dong tren 1 cap do doi tuong rieng le: individual object level
+
+Bucket policy: hoat dong tren toan bo bucket
+
+-lab
+S3 - Buckets - create bucket 
+region - name - create bucket
+bucket - upload - files and folders - upload
+permission - block off public access - object ownership - ACLs enabled - save changes
+action - make public using ACL
+
+Buckets mac dinh la rieng tu (all object ) -> chuyen sang public internet
+Object ACl: object ACLs to confim to public internet
+Bucker policies: tona bo buckets ra internet
+HTTP status code: upload len S3 -> 200 
+
+#--- thiet lap 1 web tinh
+S3 tu dong dieu chinnh quy mo, dua tren so luong truy cap
+Scales Automatically
+traffic vao nhieu
+
+-lab
+S3 - Bucket - create bucket
+region - type - general purpose(muc dich chung) - name - object owner
+block public access settings for this bucket
+
+properties - static website hosting - edit
+static web hotsint - enable - index document - error document - optional
+
+objects - upload - add files - index.htm, error.html 
+
+permission - block off public acees - off - policy - paste .json
+
+-- 
+Bucket policies: cau hinh Bucket chua website  cho phep public ra ngoai internet
+static content: S3 chi host wen tinh - khong host web dong
+automatic scaling: S3 tu dong dieu chinh luu tru va hieu suat
+
+#--- kich hoat su dung luu tru da phien ban S3 - Versioning
+enable verioning trong S# 
+co nhieu versions cho object trong S3
+
+all versions: writes data
+backup
+khong the bi vo hieu hoa: enable, disable
+lifecycle rules
+MFA: multi factor authentication
+
+-lab
+S3 - bucket - 
+permission - policy
+object - 2 object - index.html - url - internet public
+propeties - bucket Versioning - edit - enable - save changing
+upload - add file - index.html version 2
+object - index.html co the chinh sua sang version khac
+object - show versions
+
+make public using ACLs
+
+#--- cac lop luu tru du lieu - S3 storage Classes
+
+S3 Standard
+high availability and Durability
+>= 3Azs , 99% availability - durability
+frequently access
+workloads: web, data, game
+
+S3 standard-infrequent access (S3 standard-IA)
+Rapid access - truy cap nhanh, it thuogn xuyen
+you pay to access the data: chi phi theo GB
+Use Cases: lau dai, backup, kho du lieu, phuc hoi sau tham hoa
+99%
+
+S3 One Zone-infrequent access (S3 One Zone-IA)
+luu tru trong AZ duy nhat
+chi phi thap hon 20%,
+infrequent acceess: it truy cap
+non-critical data: khong quan trong
+99.5%
+
+2 tiers (2 tang luu tru)
+frequent and infrequent: chuyen qua lai
+
+S3 Clacier Options (tuy chon)
+luu tru re nhat, toi uu va it truy cap
+Glacier instant Retrieval: luu tru dai, truy cap ngay lap tuc (milisecond access)
+Glacier Flexible Retrieval: luu tru ma k can truy cap ngay lap tuc, k ton chi phi, backup sau tham hoa
+Glacier Deep Retrieval: re nhat , 7-10 nam, truy xuat 12h - 48h
+
+Performance S3
+
+#--- Lycicle S3
+di chuyen object giua cac tang luu tru - storage tiers -> toi uu chi phi
+S3 standard -> S3 IA -> S3 Glacier
+
+versioning: lifecycle + versioning
+quan li de di chuyen cac version kahc nhau toi stotoge tiers
+
+-lab
+S3 - craete bucket - name 
+my bucket - upload 
+management - create lifecycle rule - 
+name - apply to all object in the bucket - life cycle rule actions
+move current versions of object betwwen storage Classes
+standard-IA - days after object creation - 30
+Glacier instant retrievel - days after object creation - 60 
+Review transition and expiration actions
+
+#--- ma hoa S3
+Encryption in transit: ma hoa trong truyen tai
+SSL/TLS, HTTPS
+
+Encryption at rest: ma hoa tai trang thai nghi - Server-side Encryption
+SSE-S3: S3-Managed keys, AES 256 bit Encryption
+SSE-KMS: AWS Key Manageement Service quan li keys
+SSE-C: Customer-Provided keys
+
+Encryption at test: ma hoa tai trang thai nghi - Client-side Encryption
+tu ma hoa khi upload len S3
+
+Server-Side Encruption: mac dinh enable
+S3 buckets dc dc ma hoa theo mac dinh - SSE-S3
+
+Encryption setting mac dinh cho object trong S3 buckets
+
+x-amz-server-side-Encryption
+request header
+
+X-amz-server-side-encryption: AES 256-bit SSE-S3
+X-amz-server-side-encryption: aws:kms SSE-KMS
+
+Put requesr header
+
+-lab 
+S3 - create bucket - default encryption - SSE-S3 - enable
+object overview - serer-side encryption settigns - SSE-S3
 
 
+#--- Toi uu truy xuat S3
+
+S3 prefiexes: thu muc truoc
+S3 performance: do tre thap (low latency) - 100 200 mili S, 3.500 PUT/COPY/POST/DELETE va GET/HEAD 5.500 moi S
+phan tan luot doc -     2 prefiex -> 11.00 rq/s
+
+tan suat KMS: 
+upload/download - quota KMS
+region-specific: 5.500, 10.000,... /s
+
+multipart uploads
+>100MB
+uploads song song - parallelize uploads
+
+Download phan doan theo pham vi Byte S3
+chi ding vao 1 Byte
 
 
+#--- S3 Repliation
 
+sao chep object tu bucket toi bucket khac
+versioning phai dc bat - bucket nguon toi bucket dich
+object da ton tai trong bucket k dc sao chep tu dong
+replication - sao chep dc bat
+delete markers mac ding k dc sao chep
 
+-lab
+S3 - create bucket - region - name 
+mybucket_src - upload files
 
+S3 - create bucket - region - name 
+mybucket_target - upload files
 
+management - replication rule - enalbe bucket versioning
+name - limit the scope of this rule using one or more than - chooose a bucket in this account - bucket name - enable versioning - create new role - save
+yes, replocate existing objects
+create batch operations job - automatically run the job when  - generate completion report - brower S3 - crete a new role
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#--- Cau hinh toi thieu voi S3
+S3 - general purpose bucket - ARN - 
+AIM - create user group - specify permissions - review and create
+AIM - create users details - set permission - review and create - retrieve password
 
 
 

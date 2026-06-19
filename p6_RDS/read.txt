@@ -1,0 +1,300 @@
+#--- RDS
+
+--- Relational Databases
+Tables
+Rows: data items
+Colums: fields
+
+RDS 
+multi Az
+failover capacibility
+auto backups
+
+online transaction processing OLTP workloads
+
+OLTP - online transaction processing
+xu ly giao dich thoi gian thuc
+xu ly du lieu va hoan thanh so luong lon theo thoi gian thuc
+
+OLAP - online analytcal processing
+phan tich du lieu qua khu
+phan tich du lieu, truy van phuc tap ma nhieu thoi gian, big data
+
+thich hop luu don hang trong Relational Databases
+
+phan tich sioeu loi nhuan, so luong lon du lieu
+bigdata -> data warehouse
+
+multi Az, RDS tao  ban sao chep chinh xac
+loadbalancing - 3 Ec2 - primary RDS - backups RDS
+
+replication Databases, tu dong synchoronize backup Databases
+
+mysql, sql server, oracle, mariadb, postgresql
+
+-lab
+RDS - create database - standard create - engine options - mysql - engine version - templates - production/dev/test/freetier - availability and durability - multiAZ DB cluster - settings - db cluster identifier - master password -
+instance configuration - standard classes - 2vCPU 8GRAM - conectivity - VPC - default VPC - subnet group DB - default - public access - no - monitoring - turn on performance insights for all instances in the cluster - additional - backup - enable automated backups - backup retention period - 7 days - maintenance - create database
+
+#--- tang hieu suat doc - Red Replicas
+Read replica - read only tu primary database
+giam tai cho primary database
+
+Read replica co the nam trong cac Az
+deu co DNS endpoit rieng
+
+read replica co the promote de tro thanh database doc lap -> mat sao chep tu primary database
+doc du lieu database
+backup tu dong
+read replicas tao ra nhieu
+
+-lab
+RDS - standard - mysql - templates - free tier - settings - DB instace identifier - credentail settings - master username - self managed - autogenerate password
+Intances configuration - DB instance class - storage - additional cofiguration - databse options - name - create databse
+
+my databse - action - create replica -
+settings - source replica - DB instance identifier - instance cofiguration - db.t3.micro - aws region - us east - availability - multi az db instance/single DB instance
+VPC security groups - defaul - databse authentication - additional cofiguration - create read replica
+
+#--- amazone Aurora
+aurora csdl  tuong thich mysql, postgresql
+toc do va sang sang cao
+
+10GB va tu mo rong 128TB
+compute resource 96vCPU va 768GB RAM
+2 copy trong Az k anh huong den write databse, toi da 3 copies
+tu dong sua loi, dât blocks va disk tu dong dc quet scan
+
+3 kieu repica available
+aurora replica: 15 read
+mysql replica: 5 Red
+postgresql:  5 Red
+
+aurora backups
+tu dong enable, k anh huong perfomance db
+
+autora serverless
+on-demand, tuong thich editon cua aurora
+startup, shutdown, auto scale
+
+5 khoa chinh aurora
+2 copy voi Az
+aurora snapshot voi account khac
+3 replicas
+
+#--- DynamoDB
+Nosql databse, nhanh, linh hoat
+mo hinh: document, key-value
+web, gaming, ad-tech, iot
+
+DynamoDB
+SSD
+sync 3 Az
+doc nhat quan
+
+so lan doc nhat quan cuoi cung: nhat quan giua cac ban trong 1s, tra ve du lieu cap nhat
+so lan doc nhat quan manh me: tra ve kq phan anh cac lan ghi nhan dc truoc khi doc
+
+DynamoDB Accelerator - DAX
+quan ly
+hieu suat 10 lan
+giam truy suat tu mili toi micro s
+k can quan ly caching
+api core tuong thich
+
+App - cache - RDS
+
+DAX
+app - DAX - RDS
+
+tinhs phis cho mot reques t: pay per request pricing
+can bang chi phi, hieu suat
+dung luong toi thieu
+tinh phi tem voi request vuot qua
+
+bao mat
+KMS ma hoa
+site-to-site VPN
+direct conenct - DX
+IAM policies va roles
+fine-grained access bang IAM policies
+theo doi DynamoDB su duing cloudWatch va cloudTrail
+dung VPC ket noi 
+
+#--- Transaction trong DynamoDB
+
+ACID
+aomic - nguyen tu: moi thay doi phai thuc hien tanh cong hoac k thuc hien gi
+consistent- naht quan: phai o trang thai nhat quan truoc va sau gd
+isolated - colap: k co cai gi thay doi trong khi dang dien ra
+durable - ben vung: dc thuc hien phai dc luu tru ben vung ke ca su co
+
+ACID 1 hoac nhieu table va region
+insert, delete, update cho nhieu items
+
+transaction DynamoDB
+processing finalcil transaction
+fullfiling and managing orders
+building multiplayer game
+
+transaction
+all or nothing
+financail transaction
+fulfilling orders
+read: eventual consitency, strong consistency, transaction
+write: standard, transactional
+25 items hoac 4MB
+
+#--- luu tru dynamoDB backup
+On-Demand backup and restore
+fullback moi thoi diem, k tac dong vao perfomance
+nhat quan, trong vai s, luu cho toi khi bi xoa, cung region, table source
+
+point in time recovery
+bao ve ghi xoa vo tinh
+khoi ohyc bat cu thoi diem trong 35d
+incremental backups
+tu dong bat (not enabled by default)
+
+-lab
+DynamoDB - tables - click my table
+backup - PITR point in tiem recovery
+turn on point in time recovery
+
+#--- sao luu, dong bo DynamoDB giua datacenter
+item-level trinh tu thay doi theo time trong table
+
+DynamoDB stream - shard (stream records) - lambda
+luu tru 24h
+inserts, updates, delete
+lambda functions co chuc nang nhu cac thu tuc
+
+multimaster, multi region replication 
+sao chep tren toan cau - global tables
+dynamoDB streams
+multi-region high availability
+do tre sao chep - replication duoi 1 s
+
+-lab
+DynamoDB - create table - name - parition key - create table
+my dynamodb - click - explore table item - key : value
+create replica
+
+#--- CSDL mongoDB trong documentDB
+mongoDB
+CSDL dang document, morong, linh hoat, truy van manh
+
+amazone documentDB
+chay mongodb, co the mo rong workloads va luu tru an toan, ben vung
+MongoDB On-premises - aws databse migration service - amazone documentDB
+
+#--- apache Cassandra workload amazone keysapces
+
+CSDL phan tan distributed databse, no sql
+phan tan tren nhieu server databse
+
+keyspaces la dich vu apache Cassandra
+a fully managed databse service, serverless
+resource, scalable
+
+#--- Graph databse
+luu tru dang bang
+
+neptune
+ket noi danh tinh identities - graph danh tinh
+bieu di kien thuc
+pattern va fraud
+IT security
+
+#--- Quantum Ledger databse - QLDB
+
+ledger database
+noSQL, transaction log
+khong the ap naht ban ghi log, chi co the cap nhat moi vao
+bitcoin, etherium
+shiping companies
+duoc pham
+
+QQLDB - quantum ledger databse
+transaction log minh bach
+giao dich tai chinh
+he thong chuoi cung ung
+lich su khieu nai
+ho so ky thuat so
+
+
+# timestream data
+time series data
+du lieu thu thap 1 tloat theo thoi gian
+iot - sensors, nong nghiep - agriculture
+analytics, incomming, outcoming
+devops applications, monitoring
+
+phan tich hang nghin ti su kien moi ngay 1/10 so voi tradition relational databse
+
+
+#--- lab EC2 + RDS
+AWS account - Us-east-1 region - Ec2 (webserver) - RDS (wordpressdb)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

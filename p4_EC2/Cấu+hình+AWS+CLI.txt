@@ -1,0 +1,11 @@
+
+# Cấu hình AWS CLI
+aws configure
+
+aws s3 ls
+aws s3 mb s3://your-bucket-name
+aws s3 ls
+
+aws s3 cp /path/to/your/file.txt s3://your-bucket-name/your-folder/file.txt
+
+aws s3 ls s3://your-bucket-name/your-folder/ --recursive
