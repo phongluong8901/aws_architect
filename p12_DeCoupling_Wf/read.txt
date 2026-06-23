@@ -1,0 +1,316 @@
+#--- De coupling
+
+tight coupling 
+user - EC2(FE) - Ec2(BE)
+
+loose coupling
+User - ELB - 3 EC2 (FE) - ELB - 3 EC2 (BE)
+
+-
+3 dich vu Decoupling workflows
+Simple Queue Service (SQS)
+SQS  quan ly thong diep - message theo hang doi -> cho pheo microservices, phan tan - distributed systems, phi may chu - Serverless
+
+Simple Notification Service(SNS)
+truyen thong diep cho application den ung dung (A2A), va ung dung den con nguoi (A2P)
+
+API Gateway
+publish, duy tri, giam sat, bao mat APIs
+
+khong bao gio chon tightly couple
+
+-
+Decoupling workfolows
+Loosely Couple: lien ket long leo
+
+internal va external
+
+one size
+
+#--- Messaging voi SQS
+Poll-based messaging: nguoi dua thu, muon doc thi ra lay tai hom
+nguoi dung nhap FE, EC2 nhan tu nguoi dung -> message vao hang doi queue -> BE san sang thi nhan 
+
+simple queue service - SQS: mesasge ghi vao hang doi - queue SQS, thang khac lay tu SQS ra va xu ly
+
+SQS settings
+Delivery Delay: default 0, max 15m
+Message size: kich co text max 256KB
+Encryption: default encryption khi qua lai
+Message retention: default 4 d, min 1m, max 14d (luu tru)
+Long vs Short: short polling enabled loai bo phan hoi trong - empty response va phan hoi trong sai - false empty response
+Queue Depth: Auto scaling
+
+Visibility Timeout: 
+User - Ec2(FE) - SQS(message - lock 30s, remove by Ec2) - EC2(BE)
+
+-
+SQS messaging
+SQS setting
+size
+
+#--- SQS Dead Letter Queue
+
+Dead-letter Queues: thiet dat thoi gian hien thi visibility timeout, sau khi dc bo phieu - pooled boi consumer application - trong thoi gian do message dc process:
+message dc xu ly gui den consumer application, SQS xoa message trong queue
+mesasge that bai, mesasge quay lai queu va nam cho trong queue -> vong lap
+cau hinh Maximumreceives - so lan mesasge process van quay lai queue -> Dead Letter Queue - DLQ
+
+-lab
+SQS - Queues - create queue - details - name - configuration - mesasge retention period - visibility timeout - maximum message size - receive messsage wait tim - encryption - enabled - 
+Dead-letter queue - enabled - choose queue - maximum receives - create queue
+send and receiv mesasges - mesasge body - delivery delay - pool for mesasges -> recieve count
+
+-
+Monito, monitor
+DLQS la SQS queues dc thiet dat de reject mesasges
+retention setting: luu giu max 14d
+SNS de tao ra SQS DLQ topic
+
+#--- sap xep mesasge voi SQS FIFO
+Standard: ms khong theo thu tu, duplicated
+FIFO: ms theo thu tu , khong trung lap. 300 ms/s, chi phi
+
+-lab
+SQS - queses - _id - send and receive mesasges - send mesage - mesasge body - send mesasge
+
+-> gui 20 ms
+
+receive mesasge - poll message response
+
+-> queues lon xon
+-> chuyen standard sang FIFO
+
+-
+
+#--- SNS gui email
+Push-based messaging
+
+SNS: la push based mesasing servie se gui message de subscribed - dang ky , thong bao - alert den 1 ung dung
+
+SNS settings
+subscribers: data firehose, SQS, lambda, email, HTTP(S), SMS, platform application endpoint
+message size: max 256 KB
+Encryption: default
+FIFIO hoac Standard: FIFIO cua SNS  ho tro SQS cua subscribers
+DLQ cho SNS
+Access policy: cau hinh policy truy cap tai nguyen nhu S3
+
+-lab
+SNS - topics - create topic - details - Standard - name - display name - Encryption
+
+SQS - Queues - _id - Access policy - JSON
+SQS, SNS -> ARN -> copy -> paste vao resource
+
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Sid": "MySQSPolicy001",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "SQS:*",
+      "Resource": "arnName-SQS-Queue",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "arnNam-SNS-Topic"
+        }
+      }
+    }
+  ]
+}
+
+-> doi ca 2 queues
+
+SNS - Subscription - create - Protocol - SQS - Endpoint - subscription filter policy - create
+
+-> tao them 1 subscription
+
+SNS - topic - _id - Publish mesasge - subject - message body 
+
+send message - poll for mesasge
+
+#--- MQ de quan ly va truye nthon diep - message broker
+message broker: di chuyen ung dung len aws
+mesasging Protocols
+khong dong bo
+Apache activeMQ va RabbitMQ
+
+SNS voi SQS hoac MQ
+deu cung cap kien truc topic va queues, cho phep mesasging one-to-one hoac one-to-many
+neu di chuyen - migrating hien co mesasging, dung MQ, ho tro tich hop
+UNg dung moi thi SNS, SQS vi mo rong cao - higly scalable
+MQ yeu cau private networking nhu VPC, direct connect, hoc VPN
+SNS va SQS cho phep public
+
+MQ brokers
+MQ cung cap kien truc co san cao, de bao tri, broker engine
+MQ cho activeMQ: acive/standby - chudong/duphong, cau hinh network cua cac brokers
+MQ cho RebbitMQ: cluster deployment , broker nodes tren cac Azs dung sau la Network Loac balancer
+
+-
+MQ la service de dang di chuyen mq cuar chung ta len aws
+ho tro 2 laoi engine Apache ActiveMQ va RabbitMQ
+JMS hoac AMQP, MQTT, OpenWire, STOMP
+new applications su dung SNS ket hop SQS thay vi dung MQ
+yeu cau private networking, can VPC qua Direct Connect hoac Site-to-Site VPN
+kien truc HA phu thuoc vao engine
+
+
+#--- API Gateway
+
+cho phep publish, tao, duy tri, giam sat, bao mat API. dugn truoc - front door de di vao ung dung
+
+tinh nang:
+Security: web application firewall (WAF) bao ve chogn tan cong tu ben ngoai vao endpoint
+kiem soat traffic
+
+Stop Aubuse - dung lam dung: gioi han lam dung , chong tan cong DDos
+
+APi Gateway de su dung, cau hinh API calls
+
+-lab
+
+API Gateway - 
+APIs
+Stages
+
+-
+APIS laf front door, bao ve fonr door
+API calls trong ung dung
+API Gatewayk can lo hardcode access vaf secret keys
+
+-
+API: creating hoac managing
+DDOS: tan cong vao web
+versioning
+NO Baking: k can access keys
+
+#--- Workloads va AWS Batch
+
+AWS Batch: chay khoi luong cong viec theo lo - batched Workloads
+tan dung Ec2 hoac Fargate
+don gian hon
+tu dong cung cap va mo rong: tai nguyen co cau hinh
+khong cai cai dat -> quan li va phan tich
+
+Jobs: cac units - don vi gui len Batch xu ly: file, shell, file thuc thi
+moi job la 1 tac vu
+
+Job definitions: ban thei ke - blueprint. docker image nao dung, ram, CPU
+
+Job queue - hang doi xu ly: lap lich chay
+quan ly thu tu xu ly
+
+Compute environment - moi truong: tai nguyen de lam viec - Ec2, cotnainers EC2/Fargate
+
+Fargate: khoi luong cv can khoi dong nhanh (<30s)
+max 16vCPU, khong GPU, Memory < 120GiB
+
+Ec2: can quyen kiem soat nhieu instance
+can GPU, can Elastic Fabric adapter (tinh hie  suat cao)
+dung AMI (amazone machine images)
+
+AWS batch hoac AWs lambda
+Time limits: lambda 15p, Batch khong gioi han
+
+Disk Space - dung luong o dia: Lambda han che, neu dung EFS (Elastic file system) -> lambda can VPC. BAtch khong han che
+
+Runtime Limitations - gioi han moi truong thuc thi: lambda dung serveless, gioi han runtime ho tro(python, nodejs).
+
+batch Runtimes: dung docker, su dung bat ki do dung docker cotnainers
+
+-
+Compute dc quan li va khong dc quan ly
+
+Manged: quan ly Ec2
+CPU, RAM, memory
+ECS - elastic Container Service trong subnet cua VPC
+AMI Ecs moi nhat,
+AMI cua rieng minh
+ho tro Fargate,Fargate spot, spot instances
+
+Unmanaged: tu quan ly tai nguyen, lua chon, cau hinh, giam sat
+AMI dap ung ECS AMI
+quan li A-Z, cauhinh, bao tri, toi uuu
+it pho bien
+thich hop truong hop phuc tap, dac thu
+
+-
+
+Long-Running Workloads
+BATCH ly tuong day dai dua tren event > 15m
+
+Managed servie: cau hinh, quan li
+
+Jobs va Jobs Definitions:
+Jobs la unit dc gui len Batch
+Job definitions: la blueprint, jobs se gui va queues truoc khi xu ly
+
+Batch , lambda
+
+Compute environment
+
+#--- Dieu phoi, xay dung cho ung dung phan tan Step functions
+
+Orchestration: ket hop nhiu aws tao ra ung dung doanh nghiep
+Graphical console: giao dien do hoa truc quan, de theo doi, thao tac workflows
+Components: Steps functions la state machines va tasks - tac vu
+State Machine: workflow gom nhieu buoc de kich hoat event
+task: trang thai cu the trong workflow(state machine) dai dien cho don vi cong viec
+states: step trong workflow se co state
+
+2 loai workflow
+Standard
+dien ra 1 lan duy nhat, toi da 1 nam, co lich su
+2000 lan/s thuc thi
+state transition - chi phi theo so lan chuyen trang thai
+
+Express
+dien ra 1 lan, toi ad 5m, huu ich task co tan suat cao
+IOT realtime
+chi phi dua tren so lan thuc thi va memory
+
+-
+state va satte machines
+Flexible - linh hoat: states du lieu dau vao va hanh dong 
+language - ngon ngu: states va workflow states language
+States: phan tu trong state machine
+Example: moi buoc dat hang truc tuyen
+
+tich hop san:
+lambda, batch, dynamoDB, Ecs, fargate, sns, sqs, eventbridge, api Gateway
+
+states:
+Pass: ket noi hoac chuyen input sang output ma k thuc hien thao tac nao khac
+task: thuc hien task nhat dinh (Lambda, batch, SNS)
+Choice: logic phan nhanh then vao state machine, co dieu kien
+wait: do tre trong state machine
+succeed: dung qua trinh va danh dau thanh cong
+fail: dung qua trinh va danh dau that bai
+parallel: chay song song trong state machine
+map: tap hop cac steps dua tren mang dau vao
+
+AWS Step Fuctions:
+serverless Orchestration- thuc thi tac vu dua tren su kien, kem do hoa
+
+#--- Dua du lieu tu Sass len Aws AppFlow
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

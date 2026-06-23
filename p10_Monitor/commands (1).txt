@@ -1,0 +1,19 @@
+1. Boot Strap Script:
+
+#!/bin/bash 
+sudo apt-get update -y 
+sudo apt-get install apache2 unzip -y
+systemctl start httpd 
+systemctl enable httpd 
+echo '<html><center><body bgcolor="black" text="#39ff14" style="font-family:  Arial"><h1>This is Cloudwatch Lab</h1><h3>' >  /var/www/html/index.html 
+echo '</h3></html>'  /var/www/html/index.html 
+
+2. Add permission for user:  
+CloudWatchAgentServerPolicy 
+
+3. Commands:
+
+wget -O awslogs-agent-setup.py https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py  
+sudo apt-get install python2 
+sudo python2 ./awslogs-agent-setup.py --region us-east-1 
+sudo cat /var/log/apache2/error.log 

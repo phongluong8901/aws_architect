@@ -1,0 +1,182 @@
+#--- Elastic Load balancing
+
+https://raw.githubusercontent.com/phuongluuho/phuonglh009/main/lbsbootstrapscript.txt
+
+---
+
+Elastic load balancing
+can bang tai - tu dong phan phoi traffic truy cap toi nhieu muc tieu (Ec2), nhieu availability zones
+
+3 loai:
+Application Load Balancer: layer 7, OSI - tang Application
+inteligenet load balancer
+
+Network Load Balancer: Layer 4, OSI - Transport, xu ly hang trieu y/c moi s, low latency
+Performance load Balance
+
+Classic Load Balancer: layer 7 , OSI - Http/HTTPS, X-forwarder, sticky sessions
+
+health checks: kiem tra tinh trag services
+Inservice: khoe
+OutOfService: loi
+Loadbalancer thuc hien check health heath
+
+Ec2 khoe -> request, neu unhealthy -> dung dinh tuyen
+LB dinh tuyen lai vao Ec2 da dc recovery va health
+
+ELB: 
+Application Load Balancer: production
+Network Load Balancer: hang trieu rq/s
+Classic Load Balancer: test, kiem thu, dev
+
+
+#--- Application Load Balancer
+OSI tai layer 7. sau khi LB nhan rq, xac dinh quy tac uu tien -> chon rule va xu ly
+
+listeners: kiem tra ket noi client, protocol va port da cau hinh. 
+Listener la thanh phan cua ALB lang nghe nguoi dung
+dinh ngia rules -> dinh tuyen toi target da dc dang ky
+uu tien - piority hoac nhieu actions va conditions
+
+rules: khi conditions cua rule dc ap dung, cations duoc thuc hien, quy tac listeners
+
+target groups: dinh tuyrn request toi 1 hoac nhieu da dc dang ky (Ec2 ) chua protocol va port numbr  da dinh nghia
+
+- so do
+Listener(rule) (target group (2 targets) - health check) - Load balancer - Listener (2 rules) (2 target group (4 target) - 2 heath check)
+
+-
+User(request) - route 53 - Us-1a | Us-1b - n Ec2 - (abc.com) | (abc.com/images)
+
+enable path patterns
+
+-
+ALB chi ho tro HTTP va HTTPS
+
+HTTPS Load balance: de su dung HTTPS listeners can it nhat certificate SSL/TLS server tren load balancer
+LB su dung server certificate de ket thuc - terminate  ket noi frontend va giai ma request tu nguoi dung, sau do gui toi target
+
+-lab
+Ec2 - instances - launch an instace - name - os - instance type - key pair - network settings - SSH,HTTPS,HTTP - edit - VPC - subnet - security group name - advanced details - User data (bootstrap scripts) - launch
+
+-> tao 3 server (3 region)
+
+Ec2 - Load Balancers - create - Application Load Balancer - configuration - name - schema - internet-facing - Load balancer IP Address type - Network mapping - VPC - mapping (tich all) - 
+security groups - listeners and routing - Protocol - port - add listener - HTTP - create target groups -
+specify group details - target type - instances - target group name - protocol:port - IP address - IPv4 - VPC - protocol version - HTTP1 - health checks - HTTP - adcvanced health check setings - traffic port - healkthy threshoald - unhealthy... - next
+register target - include as pending below
+refresh - _id target - optimize with service integrations - create load balancer
+
+-> dang ky 3 service
+
+Ec2 - load balance - _id - details - status - active
+copy DNS name -> link to internet
+
+Ec2 - Target groups - mornitoring, health check
+
+Ec2 - load balancer - details
+
+-
+Application load balancder
+listener
+rules
+target group
+
+#--- Extreme Performance voi Network Load balancers
+transport - layers 4
+
+OSI - open system interconnection - hang trieu rq/s
+
+Request Received - nhan dc y/c ket noi -> chon target tu target group theo quy tac default
+
+Listener: client toi cac protocol va port
+NLB forwards den target group, khong co rules
+
+target Groups: group target dinh tuyen requests toi target da dc dang ky (protocol - port number - rule)
+
+protocols
+TCP, TLS, UDP, TCP_UDP
+
+ports
+1-65535
+
+Encryption: listener TLS toi Load balancer toi logic nghiep vu
+TLS setup
+
+NLB can bang tai TCP traffic layers 4, xu ly hang trieu rq/s va ultra-low latencies
+
+co the giai ma traffic, nhung can setup cetificate len LB
+
+
+#--- Classic Load balancer
+phien ban cu cua aws
+can bang tai HTTP/HTTPS, dugn dc o layers 7, stikey sessions,
+
+X-Forwarded-For: traffic tu load balancer chi luu IP cua proxy hoac load balancer
+xem IP goc dung client request header
+
+X-forwarded-for: lay dia chi ip public nguoi dung cuoi
+
+gateway timeouts
+appliaction dung phan hoi, classis load balancer tra loi 504 error
+
+Web server hoac tang databse server
+
+-lab
+Ec2 - Load Balancer - Classic load balancer - previous generation - create
+name - scheme - internet-facing - network mapping - VPC - mappings (tick all) - security groups - listener and routing - protocol - port - health checks - ping protocol - ping port - ping path
+advanced health check settings - instaces - VPC - confirm
+
+#--- Sticky sessions
+
+classis LB dinh tuyen request doc lap toi Ec2 da dc dang ky co tai nho nhat
+Stiky Session cho phep ban gan ket - stiky phien lam viec session cua nguoi dung user toi Ec2 cu the
+
+-network Diagram
+
+#--- cau hinh Application Load Balancer cho Web server
+
+Aws account (Us-region(Us-1a - Ec2(server1) - Us-1b - Ec2(server2)) - ALB - user)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

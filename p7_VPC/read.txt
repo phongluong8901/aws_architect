@@ -1,0 +1,275 @@
+#--- mang ao VPC
+nhu la 1 trung tam logic trong dam may
+aws cloud cach li, 
+kiem soat he thong mang ao - virtual network, 
+bao gom dai IP address, subnesst, route tables va network gateways
+
+co the dung nhieu lop firewalls, security groups va netowrk access control list kiem soat EC2 instance trong subnets
+
+Web: public-facing subnet
+Application: private subnet noi chuyen, ket noi web va database
+Database: private subnet: noi chuyem, ket noi Application
+
+co the cau hinh phan cung firewall va VPN giua datacenter aws cloud va tai cong ty
+aws VPC cloud(EC2 - VPC subnet) - gateways - (internet)VPN - customer gateways - customer network - servers
+
+CIDR: mo ta cac dia chi IP
+4 octel 8 bit tu 0-255
+
+3 lop mang: A,B,C
+https://cidr.xyz/
+subnet mask cho he thong mang 
+
+10.0.0.0/16
+255.255.0.0: NETMASK
+co the dung: 10.0.0.1 - 10.0.255.254
+count: 65.536
+
+10.0.0.0/24
+255.255.255.0: NETMASK
+co the dung: 10.0.0.1 - 10.0.0.254
+count: 256
+
+10.0.0.0/28
+255.255.255.240: NETMASK
+co the dung: 10.0.0.1 - 10.0.0.14
+count: 16
+
+-- Network Diagram - so do mang
+10.0.0.0 - 10.255.255.255 (10/8 prefix)
+172.16.0.0 - 172.31.255.255 (172.16/8 prefix)
+192.168.0.0 - 192.168.255.255 (192.168/8 prefix)
+
+Us-east-1 Region - VPC(ABC companyVPC - 10.0.0.0/16) - Public Subnet (10.0.1.0/24) - Webserver Ec2 isntance - Private subnet - Ec2 Appserver instace - security group - network ACL - Route table - Router -  Internet gateway
+
+-- VPC features - tinh nang
+launch Enc2
+Cap dai Ip trong subnet
+Route table: cau hinh dinh tuyen subnet
+internet gateway
+kiem soat bao mat: security group bao mat cho cac tai nguyen
+access control lists: ACL kiem soat bao mat tu ngoai vao subnet
+
+network access control lists (NACLs) - ngan chan dai IP cu the tu subnet 
+
+#--- xay dung customs VPC
+VPC - resource by  Region
+VPC - your VPCs - main route table _id - subnets without explict associations - 
+VPC - subnets - _id - details
+
+VPC - create VPC - VPC and more/ only - name tag - IPv4 CIDR block (manaul input) - IP4 CIDr 10.0.0.0/10
+Ipv6 CIDR block - tenancy - tags 
+
+VPC - security group - 
+
+VPC - your VPCs - _id - main table , main network
+
+VPC - subnet - create subnet - VPC ID - subnet settings - name - zone - IPv4 subnet CIDR block - tags - create subnet 
+
+VPC - subnet - _id - available Ipv4 address
+
+https://cidr.xyz/
+
+-- 5 dia chi ip khac 
+10.0.0.0: netowrk address
+10.0.0.1: VPC Router
+10.0.0.2: VPC network CIDR DNS
+10.0.0.3: aws for future
+10.0.0.255: network boardcast address
+
+256-5 = 251 IP address for Application, servers
+
+VPC - subnets - create subnet - VPC ID - name - zone - IPv4 CIDR block 10.0.2.0/24 - tags - create subnet
+
+-> 1 subnet public + 1 subnet private
+
+---
+VPC - subnet - _id1 - edit subnet - enalbe auto-asign public ipv4 address 
+-> public subnet - yes
+
+VPC - internet gateway - create internet gateway - name - 
+_id - actiions - acttach VPC - availability
+
+VPC - route table - _id - routes - destination - subnet associations - explicit subnet associations - subnet without explicit associations
+
+VPC - route table - create route table - name - VPC - create
+
+_id - routes - edit routes - add route - destination - target - internet gateway - save
+route table - subnet associations - explicit subnet associations - eidt subnet - save
+
+-> public subnet da ra dc internet
+
+---
+EC2 - launch an instance - name - networking - VPC - subnet - auto-assign public ip - create security group - name - description - inbound security group rules - user data - bootstrap script - launch
+
+_id - ipv4 public - internet 
+
+Ec2 - security group - create  - bacsic details - name - description - VPC - inbound rules  - ssh - _id - create
+
+
+Ec2 - instance - launch - name - keypair - network - vpc - subnet - firewall - common security group - launch
+
+_id web - connect - ssh - 
+vim mykeypair.pem
+paste
+:wq
+ls
+chmod 400 mykeypair.pem
+
+_id db copy ip private ipv4
+
+ssh tu _id web vao
+ssh ec2-user@10.0.2.137 -i mykeypair.pem
+y
+
+sudo su
+yum update -y
+-> db private nen k ra ngoai internet
+
+#--- cau hinh NAT gateway
+network address translation - NAT gateway cho private subnet ra internet, nhung ngan ket noi tu internet vao
+
+NAT GW - fault-tolerant, 5Gbps - 45Gbps, k can va loi, lien ket voi security group
+
+-
+VPC - NAT gateway - create - name - subnet - connectivity type - elastc ip allocation ID - create
+
+Route table - _id - Routes - edit routes - add - 0.0.00/0 - nat gateway - save
+
+-> _id db co the thong ra internet qua NAT
+ping 8.8.8.8
+
+
+#--- Security groups
+
+giao tiep - giao thuc
+linux - ssh port 22
+
+Security group la tuong lua ao (virtual firewalls) cho Ec2
+mac dinh cac port bi chan - block tu ben ngoai vao
+de UP ngoai truy cap -> 0.0.0.0/0
+SSH/RDP/HTTP phai mo dung cong
+
+Security group la stateful - luon co trang thai, 
+inboud cho phep 80 di vao, xong them outbound chan 80 -> outbound khong hoat dong
+
+#--- Network ACLs kiem soat traffic vao ra
+NACLs chong xam nhap vao VPC 
+network addces scontrole list - ACL la lop bao mat cho VPC, nhu firewall kiem soat traffic in/out cac subnets
+cau hinh rules cua NACLs tuogn tu security group
+
+-lab
+Ec2 - instance - _id web - copy Ipv4
+
+VPC - Network ACLs - Inbound rules - outbound rules - subnet associations - create network ACL
+name - VPC - create
+_id - inbound rules - all traffic - outbound rules - all traffic - subnet associations - edit subnet - 
+name - save
+
+_id - inbound rules - edit - add new rule - rule number - type HTTP 80, SSH 22 - protocol - allow - 0.0.0.0/0 -save
+_id - ountbound rules - edit - add new rule - rule number - custom TCp - port range - destination 0.0.0.0/0 - allow
+
+#--- VPC endpoint
+cho phep tao ket noi rieng VPC voi cac service thogn qua privatelink, internet gateway, CPN connection, aws direct connect
+ec2 trong vpc k can ip public de ket noi tai nguyen khi dung VPC endpoint
+
+enpoint la virtual devices, mo rong theo chieu ngang
+ket noi ec2 trong VPC va service aws  ma k han che network traffic
+
+2 VPC endpoint 
+interface endpoint: la elastic network interface - ENI dc gan IP rieng, ho tro Ec2, S3, DynamoDB
+gateway endpoint: giong NAT gateway, ho tro VPC vao s3, DynamoDB
+
+-lab
+IAM - roles - create role - trusted entity type - use case - Ec2 - add permission policies - AmazoneS3fullaccess - role name - create 
+
+Ec2 - instance - _id db - security - modify IAM role - Iam role - update
+
+VPC - endpoints - create - name - service category - services - gateway - VPC - rote table - create
+
+Ec2 - _id web - connect - lay ip cua _id db - ssh
+ssh ec2-user@10.0.2.137 -i mykeypair.pem
+aws s3 ls
+
+
+#--- VPCs, VPC peering
+Web VPC
+Content VPC
+intranet VPC
+
+VPCA - VPC Peering - VPCB
+cho phep ket noi 1 VPC voi 1 VPC khac su dung IP private
+private network
+mo hinh sao
+ket noi peering giua ca Region
+
+VPC - Peering connection - create - name - VPC ID - VPC CIDR - select another VPC to peer with - my account - this Region - create
+_id - DNS - DNS settings
+
+#--- chia se tai nguyen - AWS privateLink
+mo, chai se Application cho cac VPCs
+
+mo VPC ra internet: bao mat, tu private subnet bi public
+
+VPC Peering: 
+tao nhieu peering
+toan bo he thong mang bi truy cap, k tot neu co nhieu cai chay
+
+aws provate Link tot hon
+Service VPC (Applciation service - network load balancer) - Aws private Link - Client VPC (Elastic Network inerface (ENI) - Application service)
+
+10,100,1000 VPCs
+khongcan VPC perring
+can laod balancer
+
+#--- VPN CloudHub
+nhieu van phong , router hoac firewall ket noi VPN - co the dung VPN CloudHub 
+
+hub-and-spoke model, chi phi thap, ket noi VPN qua internet
+traffic qua lai gateway
+
+VPC (Ec2 - vpc subnet) - Virtual private gateway - VPN - Traffic - customer gateway - zone1/zone2/zone3
+
+VPN Cloudhub mo hinh hub-and-spoke model
+
+#--- On-Pemeise voi Direct connect
+Direct connetct - cloud service giup ket noi mang chuyen dung (dedicated network connection) tu data center den aws
+
+direct connect thiet lap mang rieng aws  va data center
+giam chi phi network, tang bang thong, on dinh
+ket noi Private
+
+Loai Direct connect
+Dedicated connecttion: ethernet va ly - aws direct connect console, CLI hoac API
+
+AWS region (public, private) - aws backbone network - direct connect (DX) location (DX router, aws cage, cus/part router, customer partner cage) - cust/provider link - customer WAN/MAN/LAN
+
+#--- VPC va transit gateway
+
+Transit gateway ket noi VPCs vaf  xuyen suot hub trung tam
+nhu 1 cloud router
+
+
+#--- Cau hinh VPC peering 2 aws VPC
+
+Web VPC 192.168.0.0/16 (route table(192.168.0.0, 192.168.1.0, 192.168.2.0) - subnet(ec2 web 192.168.0.0/24)) - VPC peering connection - private networking - MyVPC(route table(10.0.0.0, 10.0.1.0, 10.0.2.0) - subnet(rds wordpressdb 10.0.0.0/24))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,15 @@
+- Tài liệu tham khảo:
+
+https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html
+
+https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html
+
+https://aws.amazon.com/vi/route53/faqs/
+
+https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/DNSLimitations.html
+
+https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains
+
+https://en.wikipedia.org/wiki/Second-level_domain
+
+ 

@@ -1,0 +1,191 @@
+#--- Auto Scaling
+
+--- Horizontal va Vertical Scaling
+
+Vertical Scaling: 
+
+Horizontal Scaling:
+
+what: tai sao can scale
+where: sacale o dau
+when: khi nao scale
+
+Launch template: mau khoi chay - tap hop cac cau hinh dc thiet lap
+thay vi dung launch Wizard thi dung launch teamplate
+
+Teampaltes:tan dung full Ec2 auto Scaling, versioning, aws khuyen dung
+Configurations: ho tro 1 cai it Horizontal, khong thay doi - immutable, limited
+
+-lab
+Ec2 _ launch templates - create - name - teamplte versoin description - auto sacling guidance -
+Teamplate tag - key:value - os linux - network settings - subnet - advanced settings - network interfacr - add network interface -
+Storage (volumes) - EBS volume - resource tag - advanced details - metadata version - user data - launch
+
+Ec2 - launch tempalte - _id - details - instance details, storage, resuoreve tagsm network,...
+Actions - modify teamplate - modify teamplate (version) - name - quick start - advanced details - create
+
+Set default version
+
+-
+teamplate co the tao version, networking
+
+-
+Ec2 - Auto scaling groups - chose - switch to laun Teampaltes - create a launch Configurations
+
+
+#--- Ec2 auto scaling
+
+
+Auto scaling groups: chua 1 tap hop Ec2 mo rong va quan ly tai nguyen
+
+define your teamplate - auto sacling hoac launch Configurations
+networking va lua chon chi phi Ec2
+dung nhieu Azs dam bao HA
+ELB configuration: dang ky tai load balancer, tuan thu theo health checks cua load balancer
+Scaling policies:  minimm, maximum, desired capacity cho ec2 instance
+Notification: SNS de gui thong bao
+
+Autosacling
+Minimum: toi thieu acp phat
+Maximum: toi da cap phat
+Desired: Ec2 hien tai auto scaling
+
+Lifecycle Hooks: custome actions - thiet lap lifecycle ec2, wait toi da 2 gio
+scaling out hooks: install/fonfiguration software
+scaling in hooks: storing applications logs
+
+-
+Ec2 instace dc tao ra boi nhom auto sacling
+instance se vao wait state thong qua lifecycle hooks
+trong wait, instace chay script 
+script cai dat va cai hinh
+lifecycle actions
+
+-lab
+Ec2 - auto scaling group - create - chose launch teamplate or configuration - name - launch teamplate - create a launch teamplte -
+AMI ID - instacne type requirements - vCPUs - Memory (GiB) - instance puchase options - network - VPC - subnet - 
+Load balancing - attach to an existing load balancer - attach to new load balancer - name - schema - internal - 
+health checks - health check grace period - Additional settings - Default instance warmup
+Configure group size ans scaling - group size - sired capacity type - scaling - min desired capacity - max desired capacity - automatic sacling - target tracking sacling policy - next
+Add notification - SNS topic - Launch, terminate, fail to launch ,failto terminate - Add tags
+review - create
+
+Ec2 - Autoscaling groups - create notification 
+
+auto scaling group
+
+#--- Auto scaling policies
+Step scaling - dieu chinh tung buoc
+
+Scaling out
+60-80% memory usage: them 10
+80-100% memory usage: them 5
+
+Scaling in
+40-20% memory usage: terminate 10
+20-0% memory usage: terminate 5
+
+Instance Warm-up and Cooldown
+Warn-up:  ngan chan EC2 nam sau LB, k vuot qua HC va bi xoa bo terminate som
+Cooldown: tam dung Autoscaling, tranh scaling qua muc lien tuc
+Avoid threashing:  tranh tao va terminate nhanh he thong khong kip chay
+
+reactive scaling: phan ung dieu chinh
+schedualed sacling: theo lich dat
+predictive scaling: du bao dieu chinh, dung ML (data moi 24h va du doan 48 tiep)
+
+Auto sacling policies
+scale out aggressively: mo rong quy mo
+scale in Conservatively: giam quy mo
+cap phat Ec2 : AMI - amazone machine images
+giam chi phi: ec2 reversed instances
+Cloudwatch
+
+#--- Sau hon Autoo sacling policies Demo
+
+- lab
+Ec2 - launch teamplate -
+
+Ec2 - auto scaling groups - create
+Choose launch - name - network - VPC - subnet -
+
+#--- cai dat va cau hinh Scaling Relational Database
+
+Vertical Scaling: mo rong theo chieu doc
+kich co nho hon nhung hieu xuat manh hon
+
+Scaling luu tru: thay doi kic thuoc Database
+sau khi tang thi k giam lai dc
+
+Read Replicas: read-only copies database
+giam tai primary database
+
+Aurora Serverless: auto scaling vuot troi
+
+-lab
+RDS - databases  - modify - settings - version - identifier - 
+instance configuration - continue - 
+Scheduale modifications - apply during the next schedualed maintenance window/apply immediately - modify DB instance - modify
+
+RDS - database - _id - actions - create read replica -
+DB instance class - network & security - destination region DB instance identifier - disable perfomance insgiht - create replica
+
+RDS - database - _id replica - connectivity & security - endpoint
+
+-
+RDS - Relational Database Scaling
+read replicas
+scaling luu tru DB: RDS storage chi co the scale up
+vertical scaling: tang acu hinh RAM, CPU
+multi-AZ: moi truong product
+Aurora: Mysql, postgresql
+
+#--- Non-Scaling Relational Database
+DynamoDB: aws se scaling theo cau hinh
+
+Provioned: khoi luong du bao dc
+lich su dung db, gioi han tren - duoi
+tiet kiem nhat
+
+On-Demmand: khong du bao dc
+chi can chon on-Demmand
+tra tien cho moi read-write. ton chi phi
+
+-lab
+DynamoDB - Table - create - name - Partition key - table settings - customize -
+Read/write capacity settings - on-Demmand - create
+
+
+DynamoDB - Table - _id - actions - edit capacity - read capacity - auto scaling - on - target utilization - write capacity - target utilization - estimated read/wtire capacity cost - save
+
+-
+access patterns: du bao hoac khong du bao truoc
+design matters: tranh host keys 
+switching - chuyen doi: provisioned sang on-demand. sau 24h moi dc lam lai
+
+#--- Auto sacling group va application load balancer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

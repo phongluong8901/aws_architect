@@ -1,0 +1,148 @@
+#--- Monitoring
+
+CloudWatch
+theo doi, quan sat, giam sat nhieu cap do, phat hien, canh bao su truoc su CloudWatch
+
+System metrics: so lieu thong ke, solieu va bieu do
+Application metrics: Cloudwatch agent -> ec2 instance
+Alarms: thu thap, canh bao khi co su co
+
+Metrics (default)
+Ec2 network in/out, EBS read/write, S3 object count & bucket & total storage size
+Custom: CloudWatch agent, thu thap so lieu Ec2(Log, Disk capacity)
+CPU Utilization
+Network Throughput
+Ec2 memory Utilization
+EBS Storage Capacity
+
+-lab
+CloudWatch - In alarm - create - Specify metrics and condition - Graph -
+Select metric - Ec2 - check _id Ec2
+
+-> vao Ec2 instance lay instanceid
+
+CloudWatch - browse - _id - select metric
+Specify metric and condition
+Metric - Graph - Period - conditions - notification - in alarm - select an existing SNS topic - 
+EC2 action - stop this instance - next -
+Name - next
+create alarm
+
+#--- CloudWatch de giam sat log Application
+
+On-premise
+CloudTrail
+Lambda
+RDS
+ec2
+
+CloudWatch Logs: monitor, luu tru, view log files, query  cac files log, tim van de, su co, performance
+customs logs, aws CloudWatch Agent, thu thap va giam sat cac so lieu - metrics  cua EC2 cung nhu Data centers(on-premise server)
+
+3 thuat ngu
+Log event: ban ghi da xay ra, timestamp va Data
+Log stream: tu log events, chuoi lien tuc log tui Ec2 instance
+Log Group: logs streams - nhom cac log tu may chu apache web server trong cung log Group
+
+tinh nang sau thu thap
+filter Patterns: truy xuat va phan tich
+Cloud Watch log insights: truy van logs giong SQL
+Alarms: xac dinh dc xu huong hoc mau - patterns, dung Alarms de canh bao
+
+Logs trong aws console
+
+-lab
+Ec2 - launch - os linux - t3.micro - proceed without a key pair(no recommend) - select exit security group - advanced details - IAM instance profile - AWSEC2SessionManagerRole - User data (bootstrap scripts)
+
+Roles - AWSEC2SessionManagerRole - Permission policies - AllowCloudWatchLogsPut, AmazonSSManageedInstanceCore
+
+Ec2 - instances - id Ec2 - connect - Session Manager - connect - ssh
+sudo ls
+sudo vim /...
+i
+-> paste
+
+CloudWatch - log groups - _id - messages
+CloudWatch - log groups - _id - subscriptoin filters - create lambda subscription filter - chose destination - lambda function - configure - log format - subscription filter nme - test pattern
+select log data to test - messages - Test pattern - start streaming
+
+
+-> tu dong day log event tu ec2 ra Cloudwatch
+
+-
+logs dc day len CloudWatch logs
+co the luu logs trong S3
+hieu tong quan ve cac service
+
+Cong cu uu tien: Cloud watch logs, tr real-time solution
+alarms: CloudWatch alarms - filter patterns
+agnet base: agent can dc cai dat va cau hinh
+sql: log insights
+
+
+#--- Promtheus va Grafana trong aws Manager
+AMAZONE mANAGED Grafana: BIEU DO TRUC QUAN, TRUY VAN, LIEN KET, HIEN THI VE VAN HANH , LOGS, TRACES tu nhieu nguon
+trien khai, van hanh, mo rong Grafana
+Workspaces(logical grafan server): truc quan, dau vet
+Aws quan li, tap trung cong viec cua minh
+Secure: tich hop built-in security quan tri va tuan thu quy dinh
+chi phi: nguoi dung trong Workspaces
+Data sources: service for protheus, OpenSearch, Timestream
+
+truc quan cua container: EKS, ECS, kubernetes clusters
+Iot: mang noi bo va internet
+Troubleshooting - xu ly su co: dashboard
+
+amazone manged service for prometheus: serverless giam sat CPU, bo nho, network
+Open_source - promtheus ma nguon mo: ma nguon mo nhung aws quan li, mo rong container
+Automatic scaling: tu dong mo rong quy mo, thu hap, luu tru, truy van metrics
+san san cao - high availability: cho phep replicates giua Azs trong cung Region
+kubernetes: kubernetes clsuters ring tap
+PromSQl: ngon ngu cua grafana cho truy van
+luu tru: workspaces trong 150d
+
+#--- CloudWatch theo doi Web server
+
+Aws account(Us Region(Subnet(web) - Cloudwatch))
+
+-lab
+Ec2 - launch - name - os ubuntu - AMI - keypair - Network settings - SSH, HTTPS, HTTP - Advanced details - User data (bootstrap scripts) - launch
+
+IAM  - Users - _id - Permission - add permission - attach - CloudWatchAgentServerPolicy - next - add permission
+
+Ec2 - _id - connect - Ec2 instance connect - connect - ssh
+wget -O awslogs-agent-setup.py https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py  
+sudo apt-get install python2 
+sudo python2 ./awslogs-agent-setup.py --region us-east-1 
+sudo cat /var/log/apache2/error.log 
+
+IAM - Users - _id - Security credentials - Access key - usecase - CLI - next - description tagf value - create
+
+-> copy access key cho vao ssh de login
+
+CloudWatch - log groups - _id - streams - log event
+
+-> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

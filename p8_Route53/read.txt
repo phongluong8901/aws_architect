@@ -1,0 +1,174 @@
+#--- Route 53
+quan li ten mien
+
+DNS - chuyen ten mien(domain) thanh giao thuc dia chi IP 
+http://14.225.18.31
+http://unica.vn
+
+cac dia chi IP dc nhan dien lan nhau trong network
+IPv4, Ipv6
+
+- IPv4: gioi han 32 bit - hon 4 ti dia di IP
+- IPv6: 128 bits - trieu ti IP
+
+Top-Level domains 
+domain name la chuoi cach nhau boi dau cham
+tu cuoi cung la ten mien cap cao nhat
+
+TLD: .gov, .gov.vn, .com.vn, .edu
+
+Top-level domain cap cao naht quan li boi IANA
+
+Domain Registrars
+domain registrars la duy nhat, k de bi trung lap
+cap ten mien truc tiep, dang ky voi interNIC, dich vu cua ICANN de thuc thi tinh duy nhat
+
+to chuc dang ky: Domain.com, GoDaddy, Hoover, Aws, Namecheap
+
+SOA:
+server, zone, manager zone, file, time to s
+
+NS - name server records
+top-level domain de huong luu luong traffic toi content DNS Server chua ban ghi DNS chua tham quyen
+
+A record: la ban ghi A DNS can ban
+may tinh dyng A record de phan giai ten mien thanh IP
+
+TTL
+time to live - thoi gian de song, tinh bang s
+
+CNAME: canonical name - phan giai ten mien nay sang ten mien khac
+
+Alias record: bi danh dc dung de anh xa DNS trong hosted zone voi load balancers, CloudFront distributions
+
+7 chinh sach Route 53
+Simple routring, Weight routring, latency based routring, failover routing, groloarouting...
+
+
+#--- Dang ky Domain Name
+
+route 53 - register domains - find and regiter an avaible domain - check
+register domains - suggested available - check - auto renew
+contact information - email - phone - address - city - country, admin,... - next
+
+Domain.com -> giam chi phi (re hon 10 lan)
+Route 53 create hosted zone - name - type - public hosted zone - create 
+_id - records - NS, SDA - value/route traffic
+
+domain.com - domain - advanced tools - DNS(manage Nameserver) -> (copy tu aws vao DNS)
+
+Ec2  - instace - launch - os linux - key pair - firewall - HTTP, SSH, HTTPS - advanced details - User data (bootstrap script) - launch
+
+- tao 2 Ec2 cho 2 region (no se kahc nhau IP) -> dung Route 53
+
+#--- Simple routing policy
+simple routing policy 2 record voi nhieu IP
+Route 53 tra ve tat ca gia tri cho nguoi dung voi 1 thu tu sap xep ngau nhien
+
+Route 53 - hosted zones - _id - create record - name - record type - value (lay ip cua Ec2 region 1 va 2) - TTL 60s - create
+-> dùng dc domain name (nos sex xoay 2 server nhu load balance)
+
+#--- Weighted routing policy
+
+phan chia traffic truy cap theo y muon
+10% toi server 1, 90% toi server 2
+
+Health checks - kiem tra cho record set
+neu record k vuot qua health check thi bi loaij route 53 de kiem tra lai
+dat SNS de thong bao qua emal hoac SMS 
+
+-lab
+Route 53 - Health checks - configurre - name - monitor an endpoint - HTTP - IP address - host name - port - path - advanced configuration -request interval - failure threshold - health checker regions - use recommend - next
+get notified when heal check fails - create alarm - create health check
+
+- tao 2 health check (2 server)
+
+_id - edit health check , mornitoring
+
+Route 53 - hosted zones - _id - create record - value (IP cua Ec2) - TTL - Routing policy - weighted - weight 30 - heath check ID - record ID - create record
+
+- tao 2 hoste zoned (cho 2 server 30-70)
+
+#---- failover Routing policy
+setup active/passive sites (primary - secondary)
+health check de giam sat monitor tinh trang suc khoe primary site
+
+User - Active - Passive
+
+- lab
+Route 53 - Hosted zones - create record - name - value (Ec2 IP server 1) - TTL - Routing policy - Failover - record type - primary - health check - reccord ID -
+Add another record - value (Ec2 Ip server 2) - TTL - Failover - health check ID - record type - Secondary - create record
+
+health checks - status - healthy
+
+-> gia lap khong vao dc server 1 (tat HTTP va HTTPS o inbound rule) -> unhealthy -> traffic sang server 2
+
+#--- Geolocation Routing policy
+lua chon noi trffic truy cap dua trn vi tri dia li nguoi dung
+DNS bat ngon tu nguoi dung
+chau A -> Ec2 gan chau A
+
+Localization - dia phuong hoa
+tien te, ngon ngu,...
+
+Route 53 - hosted zone - create - value (Ec2 IP server 2) - TTL - Routing policy - Geolocation - location - Asia - record ID - add another record
+name - value (Ec2 IP server 1 ) - TTL - Routing policy - Geolocation - US - TTL - create record
+
+-> khi KH o vi tri US se ve vao server 1, o chau a se vao server 2 theo location
+
+#--- latency Routing policy
+Dinh tuyen traffic truy cap cac tai nguyen tren do tre mang - latency 
+reponse time nhanh nhat
+
+latency resource record set
+set cho EC2 hoac ELB resource trong moi region dat EC2
+Route 53 nhan truy an cho web -> chon latency resuorce record set cho tung khu vuc cho latency thap, tot cho phan hoi cai thien hieu suat
+Route 53 phan hoi bang gia tri dc lien ket voi record set do - Ipv4
+
+-lab
+Route 53 - Hosted zones - value (Ec2 IP server 2) - Routing policy - latency - health check ID - Region - Aisa Pacific - Record ID -
+Add another record - value (Ec2 Ip serevr 1) - latency - health check - Region - Us - create record
+
+-> trong 2 server, se chon latency thap de respone cho nguoi dung
+
+#--- Multivalue Answer routing policy
+cau hinh Route 53 tra ve nhieu gia tri
+IP cua may chu Web 
+co the tra nhieu gia tri, kiem tra hoat dong tung tai nguyen, tuong ung tai nguyen dang hoat dong
+simple routing nhung co kiem tra health check record set
+kiem tra health check - endpoint
+
+-lab
+Route 53 - Hosted zones - value (Ec2 IP server 2) - Multivalue answer - TTL - health check ID - Record ID
+another record - value (Ec2 Ip server 1) - Multivalue answer - TTL - health checked Id - record Id - create
+
+-> chet con nay thi sang con khac
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
