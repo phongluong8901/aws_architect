@@ -1,0 +1,327 @@
+#--- 3V cua Big data
+
+Volume - so luong: Terabytes den petabytes
+Variety - da dang: nhieu nguon
+Velocity - toc do: thu thap, luu tru, phan tich trong thoi gian ngan
+
+- Redshift database
+la data warehouse - kho du lieu: petabyte-scale quan li vacung cap boi aws
+du lieu lon dung trong bigdata
+
+Redshift
+Cloud Data warehouse: luu tru du lieu khong lo
+Size: co the luu tru 16 PB du lieu, khong can chia nho nhieu phan
+Relational - quan he: truy van SQL, Bi-business inteligence  
+Usage - su dung: tuyet voi cho BI, khong the thay cho RDS
+
+-lab
+Redshift - cluster - create cluster - cluster identifier - chose the size of the cluster - node type (dc2.large) - number of nodes (1) - 
+price - database configuration - admin user name - Network and security - VPC - security group - databse configuration - name - port -
+Maintenance - Monitoring - Backup - create
+
+_id - Cpu utilization - oercentage of disk - health status - database connections
+_id - properties - databse configuration - network and security settings - Node Ip address
+
+#--- EMR - Elastic MapReduce
+
+ETL - Extract transfrom load
+extract - trich xuat
+transform - chuyen doi
+load - tai
+
+EMR: ho tro quy mo lon trong tac vu ETL
+BIgdata manh me dc quan ly, xu ly du lieu khong lo bang: Spark, Hive, HBase
+
+EMR storage
+
+Hdoop distributed file system - HDFS
+system distributed - phan tan, co the scalable
+HDFS phan phoi du lieu tren nhieu instance trong EMR cluster.
+luu tru tam thoi caching trong qua trinh xu ly
+
+EMR file system - EMRFS
+mo rong cua hdoop , giup EMR clsuter truy cap truc tiep vao S3 giong nhu 1 phan HDFS
+S3 luu tru data  in/out tahy vi luu o trung gian - intermediate data
+
+local file system
+local disk gan vao Ec2 trong cluster
+instance store volume - disk luu tru gan truc tiep vao Ec2
+du lieu mat khi instance bi xoa hoac dung
+
+EMR clusters va nodes
+cluster la nhom EC2 trong EMR, moi instance trong cluster goi la node
+
+Primary Node - node chinh
+quan ly cluster, phan phoi data, tasks toi node
+theo doi health, tracing
+
+Core node
+thu thi tasks, luu vao Hdoop HDFS
+long-running de duy tri du lieu
+
+Task Node
+chi chay tac vu, kluu trong HDFS
+co the cau hinh
+thuong dung voi spot instances
+
+Purchasing Options trong Cluster EMR
+On-Demand - nhu cau: tin cay, dat, not terminated
+Reserved - dat truoc:toi thieu 1 nam, tiet kiem, primary nodes va core nodes
+spot - dau gia spot: re nhat, thuong dung cho tasks nodes
+long-running or temporary: cluster chay dai
+
+EMR: process
+EC2: on-demand, reserved, sot instances
+toolsets: sparck, Hive, Hbase, Flink,Hudi.Presto
+bigdata framework: apache haddop, apache Spark
+Storage type indicators: trong EMR, HDFS, EMRFS
+Use cases and scenarios: ETL - extract, transform, load; web indexing - thu thap va xu ly web; ML, Large scale genomics
+
+#--- Elastic MapReduce - EMR
+
+-lab
+EMR - EMR on EC2: cluster - create - name - EMR release - application bundle - Spark - AWS Glue data catalog settings - operation system options - autommatically apply latest linux update
+cluster configuration - flexible instance fleets
+Uniform instacne groups - primary - use high availability
+Core - Task 
+cluster scaling and provisioning -manually/scaling/automatic - Core - Task - networking - VPC - subnet - Ec2 security group
+steps - cluster termination and node replacement - manualy terminate cluster - bootstrap actions 
+Cluster logs - publish cluster-specific logs to S3 - encryp cluster-specific logs
+Software settings - enter configuration - 
+Security configuration and Ec2 key pair - security configuration - Ec2 keypari for ssh to the cluster
+Identify and access Management (IAM) - service role - create a setvice role - VPC - subnet - security group - instance profile - create
+
+#---Streaming data voi AWS Kinesis
+
+Kinesis: thu thap, xu ly, phan tich (igest, process, analyze) theo real-time streaming data
+huge data way - duong du lieu khong lo 
+
+2 versions
+Datastreams: real-time streaming, thoi gian thuc
+tao consumer, quan ly scaling
+
+Data firehose: gan thoi gian thuc (60s)
+S3, Redshift, Elasticseratch, Spark
+Plug and play tren aws
+
+Data firehose
+input - data firehose - elasticksearch service/s3/redshift - 
+
+Managed service for apache Flink: phan tich data dung SQL
+de tich hop: analytics voi kinesis pipeline, ho tro data firehose va data streams
+khong quan ly server: servless, aws se tu dong quan ly mo rong, cap tai nguyen
+toi uu chi phi: the amount of resources - tra tien cho soluong tai nguyen su dung
+
+Kinesis data analytics va SQS lam mesasge broker
+SQSL: MQ don gina, k phuc tap, k ho tro realtime, chi dam bao xu ly
+Kinesis: phucs tap hon SQS, big data, realtime processing
+
+#--- Athena va Glue aws
+
+Athena: truy van va tuong tac - interactive query service cho SQL
+truy van truc tirp trong S bucket ma k can tai no vao CSDL
+
+Glue: servless data integration service - kham pha, chuan bi du lieu
+thuc hien ETL worload ma k can may chu ha tang
+
+S3 - Glue crawlers - Glue data catalog (redshift spectrum) - athena - QuickSight
+
+-
+serverless: ca 2 deu do aws quan li
+glue giup thiet ke - schema
+
+
+#--- QuickSight
+
+serverless - Serverless business intelligence (Bi) data visualization service 
+dashboard va chia se cho users hoac groups
+
+business data visualizations, ad-hoc - phant ich du lieu tuy chinh
+important data - based bisiness insights
+tich hop RDS, Aurora,athena, S3
+Spice: tools trong memory  thuc hien phep tinh nang cao = advanced caculations
+enterprose - bao mat cao do cot (column-level security - CLS)
+per-session - phi theo phien  hoac per-user
+
+Users co the tao rar QuickSight
+Enterprise version cho phep tao cac groups
+users va groups trong quicksight khong lien ket d IAm users/groups
+dashbaord cho phep filterring
+linh hoat chia se
+
+Quicksight architect example 
+
+S3 -glue crawlers - glue data catalog(redshift sprctrum) - athena - quicksight 
+
+
+#---Transformed data and Data pipeline
+
+Data pipeline - eaxtrac, transform, load (ETL)
+di chuyen va chuyen doi du lieu
+
+DataDriven (huong theo du lieu)
+workflow dua vao du lieu va cac buoc phu thuoc thanh configuration
+
+Parameters - tham so
+pipeline ap dung logics do tham so 
+
+highly available - san sang cao
+infrastructure cua pipeline trien khai phan tan, fault tolerant
+
+handing failures - xu ly loi
+cau hinh SNS cho ca loi va hoan thanh tac vu
+
+storage service - luu tru
+DynamoDB, RDS, REdshift, S3
+
+Compute - dien toan dam may
+Ec2 va EMR de thuc thi tasks
+
+quan trong data pipeline
+pipeline definition: business logic cho quan ly data
+Managed compute: tu dong tao Ec2, tan dung co san
+task runnners: Ec2 lien tuc kiem tra cac tasks va xu ly
+Data nodes: location va loai du lieu nhap xuat khi xu ly
+
+pho bien
+EMR dung hadoop streaming
+importing , exporting tu dynamoDB
+copy csv giua S3
+exporting Rds sang S3
+copy sang redshift
+
+export ting MYSQl sang S3 de tao reports
+Datapipeline 
+
+-
+Manged ETL - ETC dc quan li do aws
+Data Driven workflow: dependencies giua cac service
+Storage integration: tich hop luu tru
+Compute integration: tich hop dien toan
+SNS: thong bao khi loi
+
+
+#--- Amazone Managed Streaming cho apache kafka - MSK
+
+Apache Kafka - MSK quan li hoan toan chay data streaming 
+control Plane: quan ly kafka cluster, to , cap nhat, xoa kafka cluster
+Data Plane: tac vu chinh kafka nhu producing va consuming streaming data
+Existing appliactions: ung dung, cong cu, plugin hien co
+
+Broker nodes: broker node tren moi Azs
+Zoolerper nodes: tu dogn tao
+Producers - tao du lieu, Consumers - tieu thu va xu ly, Topics
+Flexible cluster operation - quan li linh hoat
+
+Resiliency MSK
+Automatic recovery - tu dong khoi phuc: detection va auto recovery cac common failue - loi pho bien
+Detection: khi broker gap su co, MSK phat hien va kahc phuc hoac thay te node
+reduce data - giam du lieu can sao chep: MSk co gang tai su dung storage cua broker cu
+time required - thoi gian can thei cho phuc hoi: thoi gian anh huong - impact ime giam thieu downtime bang cach tu khoi phuc
+ager recovery: sau khi khoi phuc, producers va consumers sao cheo broker cu bang Ip
+
+Tinh nang
+MSK serveless: luster type trong MSK qua nly serverless cluster, tu cap tai nguyen provisioning va scaling
+Fully compatible: MSK serverless tuong thich 100% co the dung client tao produce va consumer
+MSK connect: ket noi kafka de dang va xu ly streaming data I/o
+
+Security va logging
+KMS de xu ly ma hao SSE-serve-side encruption
+Encryption at reports
+encryption in transet bang TLS 1.2 giua cac borker clustere
+log broker vao cloudWatch, S3, Kinense data firehose
+thu thap, gui metric toi cloudWatch
+ghi lai cac API calls toi MSK vao cloud trail
+
+
+#--- OpenSearch service cho phan tich
+Opensearch dc mamanged serice chay Search va analytics, ke thua elasticksearch
+
+Quick analysis - phan tich nhanh
+thu thap va nhap - igest, tim kiem, phan tich trong clusters 
+ETC(sxtractm transform, load)
+
+Scalable - kha nang mo rong: cht cluster dich vu Opensearch
+
+security: IAM de access control, VPC security group, encryption at rest - ma hoa luu tru, encryption  in transit- bao mat truyn tai, field-level security - bao mat truong du lieu
+
+Stability - on dinh: mukti Az voi master nodes va automated snapshots
+
+flexible - linh hoat: SQl BI
+
+Integrations - tich hop: cloudWatch, cloudtrail, S3, Kinesis
+
+Data source -input (log file, messages, metrics, config info, docments, list) - analytics(Opensearch service) - output(application monitor, SIEM, Searches, infrastruct monitoring)
+Capture, process, load
+find, analytics, visualization, log, real-time insights
+
+neu gap kich ban - scenario lien quan toi logging va viualiztion, sau ra logfile haoc BI
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

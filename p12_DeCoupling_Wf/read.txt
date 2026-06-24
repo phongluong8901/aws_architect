@@ -294,7 +294,43 @@ map: tap hop cac steps dua tren mang dau vao
 AWS Step Fuctions:
 serverless Orchestration- thuc thi tac vu dua tren su kien, kem do hoa
 
-#--- Dua du lieu tu Sass len Aws AppFlow
+#--- Dua du lieu tu SaaS len Aws AppFlow
+
+AppFlow
+Integration: trao doi du lieu giua cac ung dung SaaS va aws
+Ingest data: thu thap du lieu tu nha cung cap SaaS ben thu 3 va luu tru vao S3
+Bi-Directional: truyen du lieu 2 chieu, tu SaaS va Aws
+
+Flow: truyen du lieu giua source va destination
+ho tro nhieu  SaaS
+
+Data mapping: xac dinh du lieu source dc luu tru tai destination
+
+Filters: kiem soat du lieu tu S ra D
+
+trigger: cach flow chay
+run on Demmand: theo y/c
+Run on event: theo sk
+Run on Schedule: theo lich
+
+TH su dung
+chuyen ban ghi du lieu tu Scaleforce - nen tang CRM den Redshift
+Appflow de thu thap cuoc noi chuyen Slack va luu tai S3
+Migrate cacs tickets nhu Zendsk sang kho Snowflake
+Appflow dhuyen du lieu tu cac nguon len S3
+
+
+#--- Monitoring va Notification Ec2 dung cloudWatch Event SNS
+
+Ec2 da tao
+
+SNS - Topics - create - Standard - name - display name - create
+_id - create subscription - protocol - email - Endpoint - phongluong3366@gmail.com - create
+
+-> vao email check confirm dc gui tu aws ve gmail -> verify
+
+cloudWatch - Events - Rules - create - Event source - event pattern - service name (Ec2) - event type (Ec2 state-change notification) - any state - any instance - targets - SNS topic
+rule definition - name - description - create rule
 
 
 

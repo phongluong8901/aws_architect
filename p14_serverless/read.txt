@@ -1,0 +1,388 @@
+https://raw.githubusercontent.com/phuongluuho/phuonglh009/main/StopInstances.txt
+
+
+#--- Serverless
+
+Physical Data center: dat may chu
+Virtualization: dung may chu ao trong may chu vat ly - virtualize computers
+The cloud: nhieu regions, may chu ao
+serverless: tap trung code, quan ly kien truc compute cho nha cung cap cloud
+
+loi tich serverless
+de su dung, chi can code
+Event based: trong serverless compute co the dung online cho cac event
+pay as you go: dung bao nhieu tra bay nhieu theo thoi gian chay
+
+Lambda: don gian , chi can code xay functions
+Fargate: chay containers trong fargate, khong may chu, k cap nhat ban va loi
+
+#--- Lambda
+serverless compute service - phi may chu
+chay code ma k can may tinh - chay code k can cung cap moi truong phat trien ben trong servers
+
+Lambda Fuctions
+runtime: moi truong  chay code  - java, dotnet, python, go,...
+Permission - cap quyen: API call, can 1 role vao functions
+Networking: VPC, subnet, security group
+resources: CPU, ram
+trigger: laert lambda function. trigger de kich hoat lambda funtion chay khi co event 
+
+-lab
+IAM - Roles - my_role - AmazoneEc2FullAccess
+
+Lambda - function - create - name - runtime (python3.7) - architecture - change defual excution role - use an exsiting role - existing role (my_role) - create function 
+
+_id - code source - xoa code cu - va them code moi
+import json
+import boto3
+
+ec2 = boto3.resource('ec2', region_name='us-east-1')
+
+def lambda_handler(event, context):
+    instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']},{'Name': 'tag:Name','Values':['']}])
+    
+    for instance in instances:
+        id=instance.id
+        ec2.instances.filter(InstanceIds=[id]).stop()
+        print("Instance ID is stopped"+instance.id)
+
+    return "success"
+
+-> deploy
+
+_id - function overview - add trigger - select a source - EvenBridge(Cloudwatch events) - rule - create a new rule - name - desctiption - rule type - event pattern - Ec2 - Ec2 instance state-cahnge notification - add 
+
+Ec2 - instances - 
+
+Lambda - Function - _id Configuration - edit - memory - Enphemeral storage - time out - 
+
+_id - monitor - 
+
+-
+Lambda: tu dong hoa xoa rules, khoi dong, stop Ec2 hoac thuc hien cac thao tac k tich hop trong aws -> lambda
+Limitations: gioi han service
+start Lambda function: trigger
+Ecosystem - he sinh thai: de tich hop
+microservices: function nho va nhe
+
+
+#--- lambda 2
+
+-lab
+Lambda - Functions - _id - code 
+eventbridge rule - shurdownnonameEc2
+Configuration - excution role - Ec2-role
+
+IAM - roles - create - use case - service or use case - ec2 - permission policies - AmazoneEc2FullAccess - Role details - Role name - create role - 
+
+EventBridge - Rules - shutdownEC2 - edit - Ryle type - scheduale - scheduale pattern - asechduale that run s at regular reate, every 10m - rate expression - rate - 
+Select range - configura tags - review - update rule
+
+#--- containers
+phan mem, kiem thu,container, thu vien, cong cu he thong, runtime, container ma ban chay dc
+
+Virtual machine: appliaction, lib/cofig, guest, hypervisor, hardware
+containers: app, lib, container, os, hardware
+
+container terminology
+Dockerfile: chua cac cau lenh de tao ra image
+image: file bat bien, chua ma, thu vien, thanh phan files cau hinh chay ung dung
+Registry: luu tru docker image, co the trong ca 2 noi bo private va ngoai internet
+container: chay giong os cho cac ung dung, tao ra tu image
+
+Ec2 - isntance - _id - connect - ssh
+ls
+vi Dockerfile
+
+high level: gioi han va truong hop su dung
+De su dung: di chuyen tu noi bo len aws
+dev vs Prod: 
+
+#--- container trong ECS hoac EKS
+App, LIB, Container, OS, hardware
+
+ECS: quan ly container theo quy mo
+ECS quan li 1, 10, hang tram container, phu hop trien khahi cac containers
+Tich hop role: Containers, muc dich bao mat cho cac container
+tich hop ELB: can bang tai containers
+De su dung
+
+Kurbernetes: open source tuong tu container
+co ca trong moi truong noi bo va cloud
+aws-managed version goi la elastic kurbernetes Service - EKS
+
+ECS hay EKS
+ECS: docker containers aws, dongian hoa trien khai, quan li, mo rong, bao mat (trien khai don gian)
+EKS: tien khai containers trong eks tuong tu ECS nhung la kurbernetes (trien khai phuc tap)
+
+-lab
+ECS - repositories - _id - lay URI
+
+ECS - task definitions - create - EC2 - configura task - name - task role - task memory 512 - CPU - 256
+Add container - container name - image - pate URI - port mappings - host - container  - protocol - add
+create
+
+ECS - clusters - create - Ec2 linux - next - Configure cluster - name - instance configuration - on-demand - Ec2 isntance type - number of instances - keypair - networking - VPC - CIDR block - subnets - Auto assign public IP - cloudWatch container insights - create
+
+ECS - clusters - view cluster - Tasks - Run new task - Run task - launch type - EC2 - task placement - placement templates - run task
+
+EC2 - instances - detail - ipv4
+
+#--- Su dung Fargate de chay container khong can server
+Fargate: dien toan khong may chu - serverless computer engine danh cho Doker container
+aws so huu va quan li cac container ma ban chay tren do
+ECS hoac EKS
+ho tro ca linux va window container
+
+ECS launch types
+Ec2: chiu trach nhiem quan tri, bao tri, dieu hanh, EC2 tinh phi, container dai han - long-running containers, nhieu container chia se trong server, mount EFS file system, share luu tru storage
+fargate: aws quan li, chi phi theo task containers, short-runnning tasks, container doc lap, mount EFS fiile system, share luu tru storage
+
+Fargate: workloads on dinh, kiem soat cho develops
+Lambda: workloads khong du bao dc, cho cac ung dung 1 ham duy nhat, auto scaling, max 15m, mo vai runtime
+
+-lab
+ECS - task definition - create - task definition task - infrastructure requirements - launch type - aws fargate - OS, architecture, network mode - linux - task size - memory - task role - task execution role - name - URI - container - private registry - secrets manager ARN or name -
+port mappings - cotnainer port - protocol - port name 0 app protocol - environment variables - add environment variable - key, value,... - add from file - logging - log collection - use log colleciton - 
+health check - command - interval - docker configuration - command - storage - ephemeral storage - amount - volume - create
+
+ECS - clusters - name - infrastrcuture - aws fargate - monitoring - encryption - tags - create
+
+ECS - cluster - _id - service - create - application type - task definition - family - service name - 
+desired tasks - deployment options - rolling update - networking  - VPC - subnets - security group - public IP - create a new security group - allowHttp - inbound rules for security groups - create
+
+-
+
+#--- Cloudwatch event - EventBridge tu dong kiem soat va monitor
+EvenBridge - cloudWatch events: serverless event bus
+chuyen event tu source den endpoint, ket noi cac thanh phan serverless application lai voi nhau
+
+Events: thay doi trong aws, SaaS, service da cuah inh, hoac theo lich trinh schedualed events
+Rules: la acc tieu chi - criteria de match cac se kien den cac targts. dua tren event patterns hoa scheduales
+Event Bus: la router nhan chuyen toi desinations, aws co 1 bus - defaul bus, tao cac custome buses de qua nly su kinesis
+
+Event Pattern: event source va event pattern de kich hoat quy tac
+VD: EC2 terminated
+
+Schedualed - lich tring: rule theo khoang thoi gian
+rate-based: chu ky rate
+rate(1hour)
+
+cron-based: dung cron de lap lich
+cron(0 12 **?*)
+
+- lab
+EvenBridge - rules - create - name - desctiption - event bus - rule type - rule with an event pattern -
+event source - aws event or evenbridge partnr events - sample event type - sample events - Ec2 0 createion method - use pattern form
+even pattenr - event source - awservice - event pattern - json - event type specification - any state - event type specification - select target - aws service - select a target - SNS topic - configurre tag - 
+
+#--- Docker Images trong Elastric container Registry - ECR
+Registry: luu tru va quan ly containr images , secure, scalable, reliable infrastructure
+Private: IAM de quan ly truy cap vao private container image repositories
+Supported format: ECR ho tro nhu OCI, Docker va cac artifiact OCI khac
+
+Registry: tao 1 haoc nhieu registry de luu tru container image
+Authorization token: xac thuc push va pull image tu  registries
+repository: chua cac images, OCI images, OCI artifacts
+Repository policy: keim soat repos va image
+Image: container images day ra tu repo
+
+Tinh nang: Lifecycle to policies
+images trong repository
+xoa images khong su dung
+test cac rules truoc khi ap dung
+
+image Scanning:
+lo hong phan mem images
+scan, push images len cac repositories
+lay cac kq ra image
+
+Sharing
+ho tro chia se giua cac retion - Cross reion support
+ho tro chia se tai khoan - Cross-account support
+cau hinh chia se tung ngay repository va tung region - configured per repo and per region
+
+cache rules
+pull throug cache rules: tao acc quy tac luu tru tam thoi cac public container images tu cac repos nhu Docker Hub ao private repo tren ECR
+ECR dinh kem kiem tra bo nho
+
+Tag Mutability - khong thay doi
+ngan bi ghi de image tags
+cau hinh repository
+
+Integrations - tich hop
+mang theo he htong cua ban: ECr trong csht caontainer cua ban
+ECS: su dung container images tu ECR trong container definitions trong ECS
+EKS: pull cac container images cho clusters 
+Linux: su dung cuc bo cho qua trinh phat trien
+
+-
+luu tru container image: ECR quan ly registry container image 
+dinh dang ho tro: images, OCI images, OCI-compatible artifacrt
+vong doi:
+scan image
+
+#--- EKS distro Kurbernetes
+EKS-D - EKS Distro: cua kurbernetes xay boi EKS, EKS-D mang den nhieu quyen kiem soat hon
+similarities - tuong dong: dependencies giong EKS
+Diffirences - khac biet: tu quan ly he thong kurbernetes
+where: on-premises
+your responsibility - tranh nhiem ban: tu quan ly
+
+-
+self-managed kurbernetes
+versioned deployments
+
+#--- quan ly van hanh container ben ngoai EKS, EKS anywhere
+
+EKS anywhere
+On-premises EKS: trien khai cac clusters tuong tu EKS dam may
+EKS Distro: su dung quan ly K8s trong data centers
+Lifecycle: EKS anywhere doc lap
+
+control Plane: k8s Do KH van hanh hoan toan
+location: trong data center hoac operations center
+update: CLi hoac dung Flux
+Curated packages - cac goi mo rong: cung cap core cho k8s clusters
+enterprise subscription - goi dang ky doanh nghiep
+
+ECS anywhere:
+tinh ang cua ECS quan ly container-based trong on-premises
+orchestration - khong can dieu phoi: 
+duoc quan ly: 
+inbound traffic:  khong ho tro ELB
+
+Y/c ECS anywhere
+SSM agent, ECS agent, Docker
+external instances 
+script
+key kich hoat SSM
+trong VMs hoac data center
+external launch type
+
+-
+ECS any where
+ECS
+yeu cau: SSM agent, ECS agent, docker
+anywhre: quan li va dieu phoi bat cu dau container
+register and deploy: scripts cho external
+
+
+#--- tu dong dieu chinh OnDemand voi aurora serverless - toi uu hoa
+
+Aurora provisioned va aurora serverless
+On-demand: nhu cau caling
+automate: tu dong hoa khoi luong cong viec
+based on demand
+billing: db cluster dc su dung
+budget friendly
+
+aurora capacity units(ACUs): clusters, scale, 
+serverless v2, cluster khong guam xuong ACU nhu V1, toi thieu ACU
+Dung luong ACU tu warm pools
+ACU gom 2 GiB memory, CPU networking tuong ung
+phuc hoi du lieu: Resiliency
+multi Az va HA
+
+variable workloads
+multi-tenant apps
+new apps
+dev and test
+mixed-use apps
+capacity planing
+
+On Demand
+ACU(Aurora Capacity Unit)
+Aurora serverless
+ben vung
+multi Az
+
+#--- X-Ray cho Applciation insights
+App insight: view, filter, theo requests va responses
+Downstream: calls den tai nguyen va cac microservices/API hoac CSDL
+Traces: ban ghi chi tiet, theo doi luong
+Multiple Options: tracing headers, trace data, haoc X-Ray daemon
+
+X-Ray
+Segments: don vi chau thong tin tai nguyen, y/c va thogn tin khac
+Subsegments: phan doan nho hon segment, cung cap thong tin chi tiet hon
+service graph: bieru do hien thi tuong tac giua cac service
+traces: y/c trace theo trace ID theo doi qua trinh di chuyen va thu thap Segments
+tracing header: HTTP header, giai quyet sampling, trace ID
+tracding header: X-Amzn-Trace-Id
+
+AWS X-RAY daemon
+Ec2 instances
+ECS: agent dc cai trong tasks
+aws lambda: on/off
+aws elastic beandstalk: tich hop X-Ray
+API gateway: Stages
+SNS va SQS
+
+#--- AppSync - GrapQl Interfaces
+GrapQl interface manh me, kha nang mo rong cho cac developers
+ket hop nhieu nguon DynamoDB vaf aws lambda
+cho phep developers tuogn tac GrapQl
+la ngon ngu du lieu truy xuat server
+tich hop react, reac tnative, ios a android
+
+Scalable
+fetching app data, declarative coding
+
+#--- EKS cluster kurbernetes
+eksctl, kubectl, nginx, load balancer
+
+IAM user
+Ec2
+EKS cluster
+web nginx EKS cluster
+high availability EKS cluster
+
+--lab
+
+-IAM user k8s-admin
+
+IAM - Users - create - name - k8s-admin - next -
+set permissions - attach policies directly - permissiotn policies - AdminstratorAccess - next -
+create user
+
+_id k8s-admin - security crendential - access key - create 
+User case - CLI - next - create access key - down load .csv file - done
+
+Ec2 - isntances - launch instance - name - k8s-controller - os linux - key pair - proceed without keypiar - neetwork settings - firewall security group - vpc, subnet - SSH, HTTPS, HTTP - launch isntance
+
+_id k8s-controller - connect - Ec2 instacne connect - connect - ssh
+aws -- version
+aws configure
+-> nhap access key, secret key
+curl ...
+ls
+chmod +x...
+mkdir ...
+kubectl ...
+curl ...
+sudo mv ...
+
+Cloudfomation - Stacks - _id - events - 
+
+EKS - Clusters - _id - over view, compute, nwtworking
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
