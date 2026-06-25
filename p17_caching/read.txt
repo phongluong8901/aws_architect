@@ -1,0 +1,27 @@
+#--- caching
+
+ClountFront | elasticCache | Dax | global accelerator
+
+
+#--- golbal caching voi cloudFront
+
+Asis - CloufFront (edge location) - S3
+
+#--- caching voi elasticCache va DAX
+
+#--- sua loi OP caching voi global accelerator
+
+user - Global accelerator - ELB - EC2
+
+
+
+
+
+
+
+
+
+
+
+
+

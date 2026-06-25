@@ -1,0 +1,79 @@
+#--- Automation
+
+tai sao can tu dong hoa
+Thoi gian
+bao mat
+de su dung
+
+#--- CloudFomation
+khai bao - declare duoi dang ma lenh
+infrastructure as code
+
+loi ich
+infrastructure as code
+tjheo doi chi phi
+trien khai tu dong
+regional
+change sets
+stack sets
+
+aws cloudformation
+Optional: version, paramerers, mappings, resource, outputs, transform
+
+-lab
+
+CloudFormation - stacks - with new resource - create stack
+
+#--- auto mation with Elastic Beanstalk - PaaS
+
+#--- automation with systems manager
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,3 +1,371 @@
 https://github.com/phuongluuho/flowlogs-aws
 
 #--- DDos
+
+lam cho user k the truy cap dc vao web, server
+gui goi tin lon - large packet floods
+
+- tan cong DDos layer 4 - SYN floods
+lop transport layer - TCP
+TCp thiet lap thi tu may khac gui data toi may chu
+
+SYN floods: TCP ap dao may chu bang so luong lon goi SYN, bo qua SYN-ACKs do may chu tra ve
+lam het tai nguyen
+chiem het so luong TCp dc phep -> may chu bi het tai nguyen nen k tra loi client khac
+
+Amplification Attacks
+NTP, SSDP, DNS, charGEN, SNMP
+tan cong gia mao IP y/c ben thu 3 tra loi
+NTP phan hoi tai trong lon
+
+hacker (IP gia mao - IP dich) - NTP server (64 bytes, IP) - IP nan nhan(3456 bytes)
+
+tan con layer 7
+botnet so luong lon, flood request
+
+hacker gui luong lon truy cap va tai trang vao webserver -> user k ther truy cap
+
+3DDos
+tan cong tu choi dich vu DDos: co gang lam nguoi duing k truy cap dc vao
+DDos pho bien gom SYN floods hoac NTP
+tan cong DDos layer 7 tao floods GET/POST request
+
+#--- CloudTrail logging theo doi su dugn tai nguyen
+
+cung cap kha nang hien tai tai nguyen, ghi lai hanh dong da dien ra trong aws va api calls
+xac dinh user, account vao aws, IP va thoi gian
+CloudTrail giong theo doi giam sat cho account
+
+-lab 
+CloudTrail - envent history
+
+ghi lai
+Metada APi calls
+danh tinh API
+time API calls
+dia chi IP nguoi goi
+tham so tai nguyen
+su kien phan hoi
+
+#--- ngan chan tan cong Shield
+mien phi tan cong DDos
+bao ve kh as trong ELB, CloudFront, route53
+bao ve tan cong SYN/UDP floods, reflections attacks, layer4
+
+Shield Advanced
+bao ve cho ELB, Cloudfront, Route 53
+giam sat luu luong traffic  tren luong truy cap, giam sat ung dung va tan cong DDos
+24/7 truy cap vao DDos Response Team (DRT) giam thieu tan cong DDos
+bao ve cac khoan phi ELB, Route53, cloudfron tantg dot bien
+
+chi phi Shield Advanced 3000$/thang
+
+-lab
+Shield - Getting started
+
+shield  chi bao ve lop 3, lop 4
+
+#--- WAF
+la tuong lua web, giam sat HTTP, HTTPS request dc chuyen boi CloudFront hoac application Load balancer
+kiem soat noi dung truy cap
+
+IP, condition
+ALB, cloundfront chan truy cap HTTP 403
+
+WAF hoat dong tai layer 7
+
+cho phep tat ca request
+cam tat ca request tru requests chi dinh
+Dem cac y/c khop voi thuoc tinh chi dinh
+
+IP request dien
+quoc gia
+gia tri y/c
+ma SQL doc hay - SQL injection
+scrip doc hai - Cross-site scripting
+chuoi requests - regex
+
+#--- GuardDuty baom at network
+phat hien moi de doa - a threat detection service, dung ML phat hien cac hanh vi nghi ngo - malicious behavior
+Api calls bat thuong tu IP doc hai
+vo hieu hoa - disable cloudtrail logging
+trai phep
+instacnse bi xam nhap trai phep
+tham do he thuong
+quet cong va dang nhap that bai
+
+tinh nang
+alerts trong guardduty console va Cloudwatch events
+GuardDuty nhan thong tin cung cap thu ben thu 3 proofpoint va crowdstrike, security. cung cap domains, IP
+giam sat cloudtrail logs, VPC flow logs va DNS logs
+cretraile threat detection - phat hien de doa trong aws
+automated response - tu dong phan hoi dung Cloudwatch event va lambda
+ML va anomaly detection - phat hien bat thuong
+
+Phat hien de doa bang AI - baseline (7-14 day thiet lap)
+findings trong GuardDuty console va Cloudwatch
+30d free
+phi theo cloudtrail events, lu luong
+
+-
+GuardDuty la dich vu su dung AI
+
+#--- quan ly tap trung WAF thogn qua Firewall manager
+Firewall manager dich vu bao mat dc hien thi qua 1 giao dien duy nhat. setup va quan ly tap trung cac quy tac tuong lua (firewall rules)
+tao cac quy tac moi cho ALB, Api gateway, CloudFront, distributions
+
+Benifits firewall manager
+quan ly quy tac
+compliance - tuan thu
+
+nhieu tai khoan va tai nguyen dc bao mat tap trung -> fire wall manager
+
+#--- Macie theo doi S3 bucket
+personally identifiable information - PIL - thong tin ca nhan
+theit lap danh tinh
+tao chuc khai thac, lua dao
+dia chi, email,..
+
+Macie dung ML va khop mau dung do du lieu nhay cam S3
+nhan dang S3 object chua thong tin nhay cam
+alert du lieu chua dc ma hoa
+
+Macie alerts
+filters vaf alert
+gui toi eventBridge de tich hop evenmana SIEM
+security group
+
+#--- bao mat files dc upload len s3 bang presigned URLs
+object la rieng tu va chi chu moi chia se tao presigned URL
+
+oresigned URL - cung cap security credentails, chi ro bucket, object key va HTTP, get, download object
+presigned URL hop le trong thoi gian chi dinh
+
+Access - truy cap
+nhan duong dan presigned URL va truy cap vao object
+presigned cookies: cung cap luu cookies vao may tinh cho phep truy cap
+
+-lab
+S3 - buckets - _id -
+
+#--- bao mat voi advanced IAM policy document
+
+amazone Resource names - ARNs
+arn:partition:service:region:account_id:
+aws| aws-charGEN
+se|ec2|rds
+us-east-1 | eu-central-1
+123123112312
+ket thuc voi: Resource
+
+-
+IAM policyJSON document dinh ngia permission truy cap 
+identity policy: chinh sach dua tren danh tinh
+Resource policy: chinh sach tai nguyen cho S3, ec2, kms,..
+JSON, identity policy,resuorce policy khong co tac dung cho den khi dc gan vao object
+list of statements - ds danh nghia
+
+statements
+aws api request
+
+IAM policies
+Effect: allow, deny
+Action
+resource
+
+permission boundaries:
+uy quen quan ly cho users khac
+ngan su leo thang dac quyen - privilege escalation
+
+#--- aws certificate manager
+ACM cho phep tao, quan ly, trien kahi public va private SSL certificate voi services khac
+tich hop ELB, CloudFront distribution, api gateway de dang quan ly va deployt SSL certificate
+
+Benifits
+chi phi: free
+phat hanh SSL, public va private. mat tien Cho ELB
+
+automated renewals - tu dong gia hanh
+tu gia hanh SSL, cap nhat certificate moi
+
+De cai dat
+
+-lab
+EC2 - load balancer - _id - DNS name - 
+
+route53 - hosted zones - create record - Alias - route traffic to - region - routing policy - record type - create
+
+Certificate  manager - certificates - request certificate - domain name - request
+
+_id - create record in Route 53
+-> tao ra CNAME
+
+Ec2 - load balancer - _id listener - add listener - protocol HTTPS - Port 443 - Defualt SSL/TLS certificate - select - Defualt action - authenticate - target group - add
+
+#--- audit he thong voi Audit manager
+lien tuc kiem tra , tuan thu - compliance, tieu chuan  nganh - industry standard, quy dinh - regulations
+bao cao chuyen biet, kiemtoan tieu chuan PCI, GDPR
+
+kiem toan - auditing,complaince va continouns
+bao cao kiem toan - automating auditing reports
+
+#--- bao mat EC2 dung inspector
+danh gia bao mat tu dong, compliance
+tu dong danh gia de tim lo hong, sai lech
+
+2 loai danh gia
+network assessments - he thong mang
+kiem tra port tu VPC
+khong can inspector
+
+host assessments - host
+tieu chuan CWE vaf CIS benmarks
+can inspector
+
+hoat dong
+tao muc tieu danh gia
+cai agent cho en2 instance, cho phep system manager chay
+tao assessments template
+danh gia os
+xem bao cao inspector
+
+-lab
+Ec2 - instance - launch - name - ec2_inspector - os linux - instance type t3.micro - keypair - launch
+
+inspector - get started - activate inspector - 
+
+_id instances
+
+#--- quan li keys ma hoa KMS va cloudHSM
+
+KMS: Key management service de dang tao key ma hoa
+
+integration: EBS, S3, RDS giup ma hoa bang keys
+
+controlling keys - kiem soat vogn doi lifecycle va permission
+
+CMK: customer master key (metadata, date, description)
+
+get started: 
+kiem soat CMK
+
+HSM - hardware security module
+phan cung bao ve key, ma hoa va giai ma
+HSM chua nhieu chip ma hoa bao mat
+
+3 cac tao CMK - custome master key
+aws tao cmk - key material (du lieu key)
+import key material tu csht
+key material tu cloudHSM key store
+
+Key rotation
+KMS tu dong xoay vong CMK moi nam - tao ra trong HSMs
+khong dc ho tro asymetric key
+
+policies
+qua document va policies
+policies gan IAM - resource based policies
+
+key policies - CMK
+key policies
+
+3 cach kiem soat
+key policy: permission trong the key policy
+Iam ket hoi key policy: IAM
+grants - uy quyen voi key policy
+
+aws cloudHSM
+de dang thao tac tren cloud
+
+-
+KMS:
+chia se phan cung, k doc lap
+xoay vong
+tu ma hoa
+
+HSM
+chuyen dung, k chia se
+kiem saot phan cung
+kiem soat users, groups, users
+
+
+#--- Secrets trong secrets manager
+secret manager luu tru, ma hoa va tu thay doi thong tin bao mat
+database credentail, secrets
+encryption in transit, at rest
+automatically rotates credentials
+IAM policieshighly scalable
+
+secret manager
+truy xuat thong tin bi mat - credentials
+giam nguy co lo thong tin truy cap - credentails
+
+RDS credentials
+non-RDS database
+
+Automatic rotation
+enable automatic rotation, secret manager se rotatr thay doi secret
+
+Diable (tat) rotation
+Enable Rotation
+
+Secret manager - application secrets, database credentials, api keys, ssh keys, passwords
+pai secret manager de truy cacp an toan
+rotating credentials 
+secret manager
+secret manager enable rotation
+
+#--- Secret trong parameter store
+parameter store: cung cap luu tru, phan cap quan li cau hauinh, hong tin bi mat
+statabse string, ID AMI,    parameter values
+plaintext, encryption data
+free
+
+#--- cognito
+cung cap xac thuc, phan quyen quan li nguoi dung web va di dong
+Sign-up sign-in
+guest users
+
+TH su dung
+Authentication
+third party authenticate
+truy cap vao tai nguyen may chu
+truy cap aws appsync
+
+#--- root cause tai amazon detective
+
+#--- bao ve VPC dung Network Firewall
+fire wall rule engine kiem soat traffic, chan request - server message block - SMB
+
+#--- aws security hub thu thap du lieu bao mat
+alert: guardDuty, Inspector, Macie, manager
+
+#--- cau hinh VPC flow logs
+
+#--- cau hinh application firewall (WAF)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
